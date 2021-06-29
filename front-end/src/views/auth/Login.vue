@@ -73,8 +73,8 @@ export default {
   data() {
     return {
       user: {
-        email: "",
-        password: "",
+        email: "ammar@gmail.com",
+        password: "123123Aa!",
       },
       show2: false,
       form: false,
@@ -103,20 +103,15 @@ export default {
         const currentUser = await Functions.login(this.user);
         this.loading = false;
         if (currentUser.status =="200") {
-          this.sweetAlert(
-            "success",
-            `hello ${currentUser.data.user.name}`,
-            2000,
-            "top"
-          );
+          
+          let msg =`hello ${currentUser.data.user.name}`
+          this.dialogNotifySuccess(msg)
           this.$store.dispatch("setallUserData", currentUser);
           this.$router.push("/");
         }
       } catch (error) {
-        const er = error.response.data.errors;
-        this.loading = false;
+        this.alertError(error)
         this.errors = error.response.data.error;
-        this.sweetAlert("error", er, 4000, "top");
       }
     },
   },

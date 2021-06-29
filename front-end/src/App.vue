@@ -14,6 +14,7 @@
   </v-app>
 </template>
 <style scoped lang="scss">
+
 #thenavbar{
   background: #0F1111;
   padding: 10px 10px 2px 3px;

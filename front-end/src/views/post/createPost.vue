@@ -9,6 +9,7 @@
           <v-progress-circular indeterminate size="64"></v-progress-circular>
         </v-overlay>
         <v-dialog e-else v-model="dialog" :max-width="600 " class="ma-0">
+          <!-- <v-card> -->
           <template v-slot:activator="{ on, attrs }">
             <div class="rounded-lg text-capitalize" style="width:100%" v-bind="attrs" v-on="on">
               <v-text-field
@@ -59,7 +60,9 @@
             </v-card-actions>
             <!-- <v-card-actions> -->
           </v-card>
+          <!-- </v-card> -->
         </v-dialog>
+
       </v-list-item>
     </v-list>
   </div>
@@ -109,8 +112,9 @@ export default {
         this.overlay = true;
         await Functions.createPost(formData);
         this.clearInputs();
-        this.sweetAlert("success", "added new post ", "3000", "bottom-end");
+          this.dialogNotifySuccess("added new post ")
       } catch (error) {
+        this.alertError(error)
         this.overlay = false;
         this.errors = error;
       }

@@ -1,5 +1,5 @@
 <template >
-  <div class="home" id="theMainHome" @scroll="dothat">
+  <div class="home" id="theMainHome">
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
@@ -61,7 +61,6 @@
 </template>
 <script>
 import content from "./user/includesComponent/content";
-
 import onlineUsers from "./massage/onlineUsers";
 import chatting from "./massage/massageTest";
 
