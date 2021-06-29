@@ -1,15 +1,28 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 // footer and header
-import header from "../views/user/includesComponent/Add";
-import footer from "../views/user/includesComponent/Footer";
+import header from "../views/user/includesComponent/NavBar.vue";
+import footer from "../views/user/includesComponent/Footer.vue";
 // auth guard
-import guardPage from "@/router/guardPage.js";
+import guardPage from "./Guards/guardPage";
+import AuthanticationRoutes from './Authantication-Routers';
+import FriendsRoutes from "./Freinds-Routers"
+import PostRoutes from "./Post-Routers"
+import ProfileRoutes from "./Profile-Routers"
+import MassageRoutes from "./Massage-Routers"
+
 // import guardadmin from "@/router/admin.js";
 
 Vue.use(VueRouter);
 
 const routes = [
+  ...AuthanticationRoutes,
+  ...PostRoutes,
+  ...FriendsRoutes,
+  ...ProfileRoutes,
+  ...MassageRoutes,
+
+
   {
     path: "/",
     name: "Home",
@@ -19,38 +32,7 @@ const routes = [
       footer: footer,
     },
   },
- 
- 
-  {
-    path: "/massage",
-    name: "massage",
-    beforeEnter: guardPage,
-    components: {
-      default:()=>{ return import("../views/massage/massage.vue")},
-      header: header,
-      footer: footer,
-    },
-  },
-  {
-    path: "/massageTest/:id",
-    name: "massageTest",
-    beforeEnter: guardPage,
-    components: {
-      default:()=>{ return import("../views/massage/massageTest.vue")},
-      header: header,
-      footer: footer,
-    },
-  },
-
-  {
-    path: "/singlePost/:id",
-    name: "singlePost",
-    components: {
-      default:()=>{ return import("../views/post/singlePost.vue")},
-      header: header,
-      footer: footer,
-    },
-  },
+  
   {
     path: "/all-users",
     name: "allUsers",
@@ -60,124 +42,6 @@ const routes = [
       header: header,
       footer: footer,
     },
-  },
-  {
-    path: "/friends-request",
-    name: "request",
-    beforeEnter: guardPage,
-    components: {
-      default:()=>{ return import("../views/user/friendsRequest.vue")},
-      header: header,
-      footer: footer,
-    },
-  },
-  {
-    path: "/saved-posts/:id",
-    naeme:'savedPosts',
-    beforeEnter: guardPage,
-    components: {
-      default:()=>{ return import("../views/user/profile/savedPosts.vue")},
-      header: header,
-      footer: footer,
-    },
-  },
-  // prifile and its children
-  {
-    path: "/profile/:id",
-    beforeEnter: guardPage,
-    components: {
-      default:()=>{ return import("../views/user/profile/Profile.vue")},
-      header: header,
-      footer: footer,
-    },
-    children: [
-      { path: "", name: "profilePosts",  components: {
-        default:()=>{ return import("../views/user/profile/posts.vue")}}
-      },
-
-      {
-        path: "profileDetails",
-        name: "profileDetails",
-        components: {
-          default:()=>{ return import("../views/user/profile/details.vue")}}
-      },
-
-      {
-        path: "profileFriends",
-        name: "profileFriends",
-        components: {
-          default:()=>{ return import("../views/user/profile/friends.vue")}}
-      },
-
-      { path: "profilePics", name: "profilePics", components: {
-        default:()=>{ return import("../views/user/profile/pics.vue") }}},
-    ],
-  },
-  //  friend and his childrens
-
-  {
-    path: "/friendProfile/:id",
-
-    beforeEnter: guardPage,
-    components: {
-      default: ()=>{ return import("../views/user/friend/friendProfile.vue")},
-      header: header,
-      footer: footer,
-    },
-    children: [
-      { path: "", name: "friendPosts", components: {
-        default:()=>{ return import("../views/user/friend/friendPost.vue")}
-      }, },
-
-      {
-        path: "friendDetails",
-        name: "friendDetails",
-        components: {
-          default:()=>{ return import("../views/user/friend/friendDetails.vue")}
-        }, },
-
-      {
-        path: "friendFriends",
-        name: "friendFriends",
-        components: {
-          default:()=>{ return import("../views/user/friend/friendFriends.vue")}
-        }, },
-
-      { path: "friendPics", name: "friendPics",  components: {
-        default:()=>{ return import("../views/user/friend/friendPic.vue")}
-      }, 
-    }
-    ],
-  },
-
-  {
-    path: "/login",
-    name: "login",
-    components: {
-      default:()=>{ return import("../views/auth/Login.vue")}
-    }
-  },
-  {
-    path: "/signup",
-    name: "signup",
-    // component: signup,
-    components: {
-      default:()=>{ return import("../views/auth/Signup.vue")}
-    }
-  },
-  {
-    path: "/forgetPassword",
-    name: "forgetPassword",
-    components: {
-      default:()=>{ return import("../views/auth/forgetPassword.vue")}
-    }
-  },
-  {
-    path: "/reset/:token",
-    name: "resetPassword",
-    components: {
-      default:()=>{ return import("../views/auth/resetPassword.vue")}
-    }
   },
 
 ];

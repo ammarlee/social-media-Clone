@@ -138,23 +138,13 @@ export default {
         let currentUser = await Functions.signup({ ...this.user });
         this.isLoading = false;
         if (currentUser.status == "200") {
-          this.sweetAlert(
-            "success",
-            `hello ${currentUser.data.user.name}`,
-            2000,
-            "top"
-          );
+          let msg =`hello ${currentUser.data.user.name}`
+          this.dialogNotifySuccess(msg)
           this.$store.dispatch("setallUserData", currentUser);
           this.$router.push("/");
         }
       } catch (error) {
-        this.sweetAlert(
-          "error",
-          "your email and name should be unique",
-          "4000",
-          "center"
-        );
-        this.errors = error.response.data.msg;
+        this.alertError(error)
         this.isLoading = false;
         this.loading = false;
       }

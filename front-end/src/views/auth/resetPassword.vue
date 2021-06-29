@@ -139,11 +139,14 @@ import Functions from "../../../server/api"
           this.loading=true
           const res = await Functions.resetPassword(
             {user:this.user,token:this.token,password:this.password,secPassword:this.secPassword})
-           
+           let msg =res.data.msg
+          this.dialogNotifySuccess(msg)
           this.msg = res.data.msg
           this.loading=false
           setTimeout( () => this.$router.push({ path: '/login'}), 5000);
         } catch (error) {
+                  this.dialogNotifyError("there are soemthing wrong ")
+
           this.loading=false
           this.errors=error.response.data.err
           

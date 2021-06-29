@@ -13,112 +13,37 @@ import VueScreen from 'vue-screen';
 import links from './views/user/includesComponent/linkes.vue'
 import leftDrawer from './views/user/includesComponent/leftDrawer.vue'
 import rightDrawer from './views/user/includesComponent/rightDrawer.vue'
+import Mixins from './plugins/mixins';
 // vue photos
 import CoolLightBox from 'vue-cool-lightbox'
 import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
-Vue.use(VueScreen);
 Vue.use(CoolLightBox)
+Vue.use(VueScreen);
+Vue.mixin(Mixins);
 
 Vue.component('app-links', links)
 Vue.component('app-left-drawer', leftDrawer)
 Vue.component('app-right-drawer', rightDrawer)
+Vue.config.productionTip = false;
+Vue.use(VueAxios, axios);
+import VuetifyDialog from 'vuetify-dialog'
+import 'vuetify-dialog/dist/vuetify-dialog.css'
+Vue.use(VuetifyDialog, {
+  context: {
+    vuetify
+  }
+})
 Vue.prototype.$soketio = socktConnect("https://facebook-clones.herokuapp.com/");
-Vue.mixin({
-  data() {
-    return {
-      errors: null,
-      overlay: false,
-      socket: "",
-    };
-  },
-  computed: {
-    drawer: {
-      get() {
-        return this.$store.getters.drawer;
-      },
-      set(value) {
-        this.$store.dispatch("toggleDrawer", value);
-      },
-    },
-    currentUser(){
-      return this.$store.getters.getUser
-    }
-  },
-  methods: {
-    sweetAlert(icon, msg, time,position) {
-      const Toast = this.$swal.mixin({
-        toast: true,
-        position:position ,
-        showConfirmButton: false,
-        timer: time,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.addEventListener("mouseenter", this.$swal.stopTimer);
-          toast.addEventListener("mouseleave", this.$swal.resumeTimer);
-        },
-      });
+Vue.mixin(Mixins);
 
-      Toast.fire({
-        icon: icon,
-        title: msg,
-        showClass: {
-          popup: "animate__animated animate__fadeInDown",
-        },
-        hideClass: {
-          popup: "animate__animated animate__fadeOutUp",
-        },
-      });
-    },
-    sweetAlertwithImage( title, text,imageUrl,imageWidth,imageHeight,position,time) {
-      const Toast = this.$swal.mixin({
-        toast: true,
-        position:position ,
-        showConfirmButton: false,
-        timer: time,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.addEventListener("mouseenter", this.$swal.stopTimer);
-          toast.addEventListener("mouseleave", this.$swal.resumeTimer);
-        },
-      });
-
-      Toast.fire({
-        html:`
-        <img src='${imageUrl}'
-         style='border-radius: 50%;
-        height: ${imageWidth}px;
-        width: ${imageHeight}px;
-        display: inline-block;'/>
-        <p ><b>${title}</b>${text}</p>
-
-        `,
-        imageAlt: 'Custom image',
-        showClass: {
-          popup: "animate__animated animate__fadeInDown",
-        },
-        hideClass: {
-          popup: "animate__animated animate__fadeOutUp",
-        },
-      });
-    },
-    playSound(sound) {
-      if (sound) {
-        var audio = new Audio(sound);
-        audio.play();
-      }
-    }
-  },
-});
-
-const base = axios.create({
-  baseURL: "https://facebook-clones.herokuapp.com/",
-});
-Vue.prototype.$http = base;
+// const base = axios.create({
+//   baseURL: "https://facebook-clones.herokuapp.com/",
+// });
+// Vue.prototype.$http = base;
 
 Vue.use(VueSweetalert2);
 
 Vue.config.productionTip = false;
-axios.defaults.withCredentials = true;
 Vue.use(VueAxios, axios);
 
 new Vue({
@@ -249,6 +174,25 @@ new Vue({
       this.$store.commit("setAllNotifications", data);
   },
   },
+  created () {
+    const findUserToken= function readCookie(name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for(var i=0;i < ca.length;i++) {
+          var c = ca[i];
+          while (c.charAt(0)==' ') c = c.substring(1,c.length);
+          if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+      }
+      return null;
+  }
+    axios.interceptors.request.use(
+      config => {
+       config.headers['authorization'] = `Bearer ${findUserToken('TokenUser')}`
+       return config;
+     });
+    
+  },
+  
   computed: {
     user() {
       return this.$store.getters.getUser;

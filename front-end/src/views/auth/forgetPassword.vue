@@ -26,23 +26,6 @@
       v-model="form"
       class="pa-4 pt-6"
     >
-    
-     <v-alert v-if="msg"  dense
-      outlined
-      type="success"
-      class="text-capitalize mx-auto"
-     style="max-width: 500px;" >
-       {{msg}}
-      </v-alert>
-
-       <v-alert v-if="errors"  dense
-      outlined
-      type="error"
-      class="text-capitalize mx-auto"
-     style="max-width: 500px;" >
-     {{errors}}
-    </v-alert>
-
       <v-text-field
         v-model="email"
         :rules="[rules.email]"
@@ -96,11 +79,13 @@ import Functions from "../../../server/api"
                try {
                  this.loading=true
                const res = await Functions.forgetPassword({email:this.email})
+                 let msg =`Done`
+          this.dialogNotifySuccess(msg)
                this.msg= res.data.msg
                  this.loading=false
                    
                } catch (error) {
-                 this.loading=false
+                  this.dialogNotifyError("there are soemthing wrong ")
                   this.errors = error.response.data.error
                    
                }

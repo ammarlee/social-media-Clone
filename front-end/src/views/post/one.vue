@@ -176,10 +176,10 @@ export default {
   },
   mounted() {
    this.socket = this.$soketio;
-    let f = this.post.reacts.find((p) => {
+    let reactsListUsers = this.post.reacts.find((p) => {
       return p.userId._id === this.user._id;
     });
-    if (f) {
+    if (reactsListUsers) {
       this.checking = true;
     } else {
       this.checking = false;
@@ -212,7 +212,7 @@ export default {
           comment: this.comment,
         });
         this.comment = "";
-        const noti = {
+        const prepareNotificationData = {
           userId: this.user._id,
           name: this.user.name,
           img: this.user.img,
@@ -221,8 +221,8 @@ export default {
           action: "newCommentNotification",
           msg: " have comment on your post  ",
         };
-        await Functions.pushToAllNotifications(noti);
-        this.socket.emit("makeComment", noti);
+        await Functions.pushToAllNotifications(prepareNotificationData);
+        this.socket.emit("makeComment", prepareNotificationData);
       } catch (error) {
         console.log(error);
       }
@@ -234,19 +234,14 @@ export default {
       };
       try {
         if (this.checking) {
-          console.log(post.reacts);
-
           let res = await Functions.removeLike(postData);
           console.log(res.data.post.reacts);
           this.post.reacts = res.data.post.reacts;
           //  post.reacts.push({})
           this.checking = false;
         } else {
-          console.log(post.reacts);
           const res = await Functions.addLike(postData);
-          console.log(res.data.post.reacts);
           this.post.reacts = res.data.post.reacts;
-
           const noti = {
             userId: this.user._id,
             name: this.user.name,

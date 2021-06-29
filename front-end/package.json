@@ -38,6 +38,7 @@
     "vuelidate": "^0.7.6",
     "vuescroll": "^4.17.3",
     "vuetify": "^2.2.11",
+    "vuetify-dialog": "^2.0.16",
     "vuex": "^3.4.0"
   },
   "devDependencies": {
