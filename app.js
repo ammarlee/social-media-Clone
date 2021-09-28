@@ -28,6 +28,8 @@ app.use(express.urlencoded({limit: '50mb'}));
 app.use(bodyParser.json(({ type: 'application/*+json', inflate: false })));
 app.use(bodyParser.json())
 app.use(cookieParser())
+
+// 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use((req,res,next)=>{
@@ -38,15 +40,15 @@ app.use((req,res,next)=>{
 })
 let cors = require('cors');
 const socket = require('./socket');
-app.use(hamlet())
+// app.use(hamlet())
 app.use(morgan('dev'))
 
 app.use(mongoSanitize())
 app.use(xss())
 app.use(hpp())
 app.use(cors({
-   origin:['http://localhost:8080'],
-    methods:['GET','POST'],
+   origin:['http://localhost:8080','https://www.facebook.com'],
+    methods:['GET','POST','PUT','DELETE'],
     credentials: true ,// enable set cookie
     exposedHeaders: ['set-cookie']
 }))
@@ -66,10 +68,27 @@ app.use(session({
       resave: false,
       saveUninitialized: false
     }))
+
 app.use(require('connect-livereload')())
+// use passport for fb
+// const passport = require('passport')
+// const facebookStrategy = require('passport-facebook').Strategy
+// app.use(passport.initialize());
+// app.use(passport.session());  
+// require('./Passport')
+
+
 
 app.use('/uploads',express.static(path.join(__dirname, 'uploads')));
 
+const { graphqlHTTP } = require('express-graphql');
+const Firstschema = require('./graphql/schema')
+const resolver = require('./graphql/resolvers')
+app.use('/graphql', graphqlHTTP({
+  schema: Firstschema,
+  rootValue: resolver,
+  graphiql: true,
+}));
 app.use((req,res,next)=>{
   if (!req.session.user) {
     return next();
@@ -81,6 +100,12 @@ app.use((req,res,next)=>{
   })
   .catch(err => console.log(err));
 })
+
+
+
+
+
+
 
 app.use(AuthRoutes)
 app.use(PostRoutes)
@@ -108,7 +133,6 @@ let getFriendsTwo = async(userId)=>{
   }
   
 }
-const moment = require('moment')
 let newMsg = async(data)=>{
   try {
     const msg = await new Message({

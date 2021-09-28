@@ -14,7 +14,7 @@
   </v-col>
 </template>
 <script>
-import addPost from "../../../views/post/createPost";
+import addPost from "../../../views/post/Create-Post";
 import allPosts from "../../post/one";
 import allOptions from "../profile/menuOption";
 

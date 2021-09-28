@@ -1,28 +1,26 @@
 <template>
   <div class="text-center">
-    <v-overlay :value="overlay">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
 
-    <div v-if="!overlay">
-      <div v-if="user.pics">
-        <v-row v-if="user.pics.length >0">
-          <v-col v-for="(pic,i) in user.pics" :key="i" class="d-flex child-flex" cols="4">
+    <app-overlay :overlay="overlay" v-if="overlay"></app-overlay>
+
+    <div v-else>
+
+      <div v-if="user && user.pics">
+        <v-row v-if="user.pics.length > 0">
+          <v-col v-for="(pic,i) in user.pics" 
+          :key="i" 
+          class="d-flex child-flex" cols="4">
+
             <v-img
+            @class="index=i"
               :src="pic"
               :lazy-src="pic"
               aspect-ratio="1"
               class="grey lighten-2 image"
               @click="index = i"
-              :style="{ backgroundImage: 'url(' + pic + ')' }"
-              :max-height="heights"
+              :style="{ backgroundImage: 'url(' + pic + ')',cursor:'pointer' }"
             >
-              <CoolLightBox
-                :items="user.pics"
-                :fullScreen="true"
-                :index="index"
-                @close="index = null"
-              ></CoolLightBox>
+       
 
               <template ate v-slot:placeholder>
                 <v-row class="fill-height ma-0" align="center" justify="center">
@@ -31,14 +29,18 @@
               </template>
             </v-img>
           </v-col>
+                 <CoolLightBox
+                :items="items"
+                :fullScreen="true"
+                :index="index"
+                @close="index = null"
+              ></CoolLightBox>
         </v-row>
+
+
       </div>
-      <div v-if="user.pics.length <=0">
-        <v-row>
-          <v-col cols="12">
-            <v-alert color="red" outlined type="info">there is no pictures avalible</v-alert>
-          </v-col>
-        </v-row>
+      <div v-else>
+       <app-Alert color="red" msg="there is no pictures avalible"></app-Alert>
       </div>
     </div>
   </div>
@@ -51,16 +53,17 @@ export default {
   props: ["userId"],
   data() {
     return {
-      user: "",
+      user:null,
       index: null,
+       items: null,
     };
   },
   async mounted() {
     try {
       this.overlay = true;
-      Functions;
-      let res = await Functions.getCurrentUser(this.userId);
-      this.user = res.data.user;
+      let {data} = await Functions.getCurrentUser(this.userId);
+      this.user = data.user;
+      this.items =data.user.pics
       this.overlay = false;
     } catch (error) {
       this.overlay = false;

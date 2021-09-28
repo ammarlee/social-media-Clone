@@ -10,20 +10,21 @@ import VueSweetalert2 from "vue-sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import Functions from "../server/api";
 import VueScreen from 'vue-screen';
-import links from './views/user/includesComponent/linkes.vue'
-import leftDrawer from './views/user/includesComponent/leftDrawer.vue'
-import rightDrawer from './views/user/includesComponent/rightDrawer.vue'
+// Components
+import  './plugins/Components';
+// mixins
 import Mixins from './plugins/mixins';
+
 // vue photos
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
 import CoolLightBox from 'vue-cool-lightbox'
 import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 Vue.use(CoolLightBox)
 Vue.use(VueScreen);
 Vue.mixin(Mixins);
 
-Vue.component('app-links', links)
-Vue.component('app-left-drawer', leftDrawer)
-Vue.component('app-right-drawer', rightDrawer)
+
 Vue.config.productionTip = false;
 Vue.use(VueAxios, axios);
 import VuetifyDialog from 'vuetify-dialog'
@@ -54,17 +55,19 @@ new Vue({
 
   async mounted() {
     try {
+      let currentUrl = 'http://localhost:3000/'
+      // let currentUrl = 'https://facebook-clones.herokuapp.com/'
       const posts = await Functions.getPosts();
       const users = await Functions.getusers();
       this.$store.dispatch("getPosts", posts.data.posts);
       this.$store.commit("setUsers", users.data.users);
-      const socket = socktConnect("https://facebook-clones.herokuapp.com/");
-        this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
+      const socket = socktConnect(currentUrl);
+        this.socket = socktConnect(currentUrl);
 
       // let userToken = localStorage.getItem("userToken");
 
       // if (this.user) {
-      //   this.socket = socktConnect("https://facebook-clones.herokuapp.com/");
+      //   this.socket = socktConnect(currentUrl);
       //   // join the room
       //   this.socket.emit("joinnotificationsRoom", this.$store.getters.getUser
       //   );
@@ -175,6 +178,27 @@ new Vue({
   },
   },
   created () {
+    // Import the functions you need from the SDKs you need
+
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAcM4BaMHnI9tXykVvh2JskcqSOBqkwgo4",
+  authDomain: "arched-envelope-295913.firebaseapp.com",
+  databaseURL: "https://arched-envelope-295913-default-rtdb.firebaseio.com",
+  projectId: "arched-envelope-295913",
+  storageBucket: "arched-envelope-295913.appspot.com",
+  messagingSenderId: "380257225863",
+  appId: "1:380257225863:web:b1c934531b1d3d6b30fc22",
+  measurementId: "G-PEJV9Z3P5Z"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+ getAnalytics(app);
     const findUserToken= function readCookie(name) {
       var nameEQ = name + "=";
       var ca = document.cookie.split(';');

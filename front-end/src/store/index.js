@@ -15,11 +15,19 @@ export default new Vuex.Store({
     searching: null,
     chatId: null,
     friendId: null,
+    appId:'192061e662432a3b',
+    apiKey:'a80f01769131283be6c1af603192d3c2202856cd'
   },
   // GETTERS TO SEND DATA ANOTHER PLACE
   getters: {
     getFriendId(state) {
       return state.friendId;
+    },
+    appId(state) {
+      return state.appId;
+    },
+    apiKey(state) {
+      return state.apiKey;
     },
     chatId(state) {
       return state.chatId;

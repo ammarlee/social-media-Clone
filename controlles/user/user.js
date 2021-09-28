@@ -93,10 +93,8 @@ exports.currentUser = async (req, res, next) => {
 exports.EditProfile = async (req, res, next) => {
   const userId = req.params.userId;
   const { name, email, age, city, phone, bio } = req.body;
-  const files = req.body.img;
-  // console.log(files);
+
   try {
-    if (!files) {
       const user = await User.findOneAndUpdate(
         { _id: userId },
         { name, email, age, city, phone, bio },
@@ -105,46 +103,46 @@ exports.EditProfile = async (req, res, next) => {
       return res
         .status(200)
         .json({ user, msg: "you have edited your profile" });
-    }
-    const respo = await cloudinary.uploader.upload(files, {
-      upload_preset: "byr4al94",
-    });
-    const newImage = respo.secure_url;
-    const user = await User.findOneAndUpdate(
-      { _id: userId },
-      { name, email, age, city, bio,phone, img: newImage }
-    );
-    const pic = await User.findOne({ _id: userId });
-    pic.pics.push(newImage);
-    await pic.save();
 
-    return res.status(200).json({ user:pic, msg: "you have edited your profile" });
   } catch (error) {
     res.status(400).json({ error, successful: false });
   }
 };
-
-exports.EditCover = async (req, res, next) => {
-  const userId = req.params.userId;
-  let files = req.files
+const ImageUploader = require('./update')
+exports.uploadCroppedImage =async (req, res, next) => {
   try {
-    const uploader = async(path)=>await clody.uploads(path)
-    let urls = []
-      const path =files[0].path
-      const newpath = await uploader(path)
-      urls.push(newpath)
-    const newImg = urls[0].url
-    const user = await User.findOneAndUpdate(
+  const files = req.files
+  const userId = req.params.userId;
+  const mode = req.body.mode
+  let user,msg
+  const newImg =await ImageUploader.uploadImg(files,userId)
+  if (mode=='prfile') {
+     user = await User.findOneAndUpdate(
+      { _id: userId },
+      {img: newImg },
+      { new: true }
+    );
+  
+  msg='update successfully profile image'
+
+  }else{
+     user = await User.findOneAndUpdate(
       { _id: userId },
       { coverImg: newImg }
     );
-    return res
-      .status(200)
-      .json({ user,newImage:newImg, msg: "you have edited your profile cover image" });
-  } catch (error) {
-    res.status(400).json({ error, successful: false });
+  
+    msg="you have edited your profile cover image"
+
   }
-};
+  res.status(200).json({ newImg,user,msg})
+
+} catch (error) {
+  console.log(error);
+  res.status(400).json({ error, successful: false });
+
+}
+}
+
 exports.othersMsg=async(req,res,next)=>{
   const { userId, otherId } = req.body;
   try {

@@ -1,7 +1,10 @@
 <template>
   <div>
     <!--  menu for the (save-edit-delete-hide) -->
-    <v-menu transition="slide-y-transition" bottom   :close-on-click="closeOnClick">
+    <v-menu 
+    transition="slide-y-transition"
+     bottom  
+   :close-on-click="closeOnClick">
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           class="ml-auto font-weight-bold"
@@ -89,7 +92,7 @@
           <v-list-item>
             <v-list-item-title>
               <v-btn text @click="deletePost(post)">
-                <v-icon class="red--text">mdi-delete</v-icon>delete post
+                <v-icon class="red--text text-capitalize">mdi-delete</v-icon>delete post
               </v-btn>
             </v-list-item-title>
           </v-list-item>

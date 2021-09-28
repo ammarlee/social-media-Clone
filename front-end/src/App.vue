@@ -13,6 +13,31 @@
     </router-view>
   </v-app>
 </template>
+<script>
+import { CometChat } from "@cometchat-pro/chat";
+export default {
+  data() {
+    return {};
+  },
+  created() {
+    this.initializeApp();
+  },
+  methods: {
+    initializeApp() {
+      console.log(this.appId);
+      var appID = this.appId;
+      CometChat.init(appID).then(
+        (res) => {
+          console.log("Initialization completed successfully >>>>>>",res);
+        },
+        error => {
+          console.log("Initialization failed with error:", error);
+        }
+      );
+    }
+  }
+};
+</script>
 <style scoped lang="scss">
 
 #thenavbar{

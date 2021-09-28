@@ -74,6 +74,7 @@
 </template>
 <script>
 import Functions from "../../../server/api";
+import axios from 'axios'
 export default {
   data() {
     return {
@@ -83,8 +84,8 @@ export default {
       cpass: null,
       user: {
         name: "",
-        email: "",
-        password: "",
+        email: "a@a.gmail.com",
+        password: "123123Aa!",
         confirmPassword: "",
         phone: undefined,
         bio: "Far far away, ",
@@ -139,6 +140,24 @@ export default {
         this.isLoading = false;
         if (currentUser.status == "200") {
           let msg =`hello ${currentUser.data.user.name}`
+
+           const url = "https://api-us.cometchat.io/v2.0/users";
+      axios
+        .post(
+          url,
+          { uid:currentUser.data.user._id, name:currentUser.data.user.name},
+          {
+            headers: { 
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              appId: this.appId,
+              apiKey: this.apiKey,
+            },
+          }
+        )
+        .then((user) => {
+          console.log(user);
+        });
           this.dialogNotifySuccess(msg)
           this.$store.dispatch("setallUserData", currentUser);
           this.$router.push("/");

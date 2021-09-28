@@ -2,9 +2,8 @@
 <div>
 
   <v-app >
-    <v-overlay :value="overlay" v-if="overlay">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
+
+        <app-overlay :value="overlay" v-if="overlay"></app-overlay>
     <v-container>
       <div class="text-capitalize text-center">
         <div class="nav-bar">
@@ -58,7 +57,7 @@
           </v-row>
         </div>
         <div v-if="friendsList" >
-          <v-alert v-if="friendsList.length<=0" color="red" outlined type="info">there is no friends avalible</v-alert>
+       <app-Alert color="red" msg="there is no friends avalible"></app-Alert>
         </div>
       </div>
     </v-container>
