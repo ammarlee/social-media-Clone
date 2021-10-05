@@ -26,7 +26,7 @@
         ref="textarea"
         class="textarea"
          placeholder="Describe yourself here..."
-        rows="4"
+        rows="3"
         :value="value"
         @input="$emit('input', $event.target.value)"
         @keyup.enter.exact="onEnterKey()"

@@ -4,6 +4,7 @@
       <v-card class="mx-auto" v-if="post" rounded="lg" style="cursor: pointer">
         <!-- new -->
         <!-- the user data and time  -->
+        
         <v-list two-line class="theListDiv pt-0 pb-0">
           <v-list-item>
             <v-list-item-avatar style="cursor: pointer">
@@ -27,6 +28,8 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
+
+
         <!-- the post content description and image  -->
         <v-list-item>
           <v-card-text class="mb-0 mt-0 pb-0 pt-0">

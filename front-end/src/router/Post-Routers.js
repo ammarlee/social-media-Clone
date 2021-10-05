@@ -2,14 +2,7 @@ import guardPage from "./Guards/guardPage";
 import header from "../views/user/includesComponent/NavBar.vue";
 import footer from "../views/user/includesComponent/Footer.vue";
 export default [
-  {
-    path: "/uploadimg",
-    name: "uploadimg",
-    components: {
-      default:()=>{ return import("../views/post/uploadImg.vue")},
-     
-    },
-  },
+
     {
         path: "/singlePost/:id",
         name: "singlePost",

@@ -6,7 +6,6 @@ import DrawerState from "./modules/DrawerState"
 import AuthanticationState from "./modules/AuthanticationState"
 import PostState from "./modules/PostState"
 import MassegeState from "./modules/MassegeState"
-import CommentState from "./modules/CommentState"
 import NotificationState from "./modules/NotificationState"
 Vue.use(Vuex);
 export default new Vuex.Store({
@@ -60,7 +59,6 @@ export default new Vuex.Store({
     DrawerState,
     UserState,
     NotificationState,
-    CommentState,
     MassegeState,
     PostState,
     AuthanticationState,

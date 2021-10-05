@@ -34,7 +34,7 @@
 
 <script>
 import allPosts from "../../post/one";
-import allOptions from "../profile/menuOption";
+import allOptions from "../includesComponent/menuOption";
 
 export default {
   name: "posts",

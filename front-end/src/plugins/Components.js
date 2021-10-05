@@ -1,5 +1,4 @@
 import Vue from "vue";
-
 import links from '../views/user/includesComponent/Navbar-Links.vue'
 import leftDrawer from '../views/user/includesComponent/leftDrawer.vue'
 import rightDrawer from '../views/user/includesComponent/rightDrawer.vue'

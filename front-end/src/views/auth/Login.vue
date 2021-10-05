@@ -62,8 +62,8 @@
                 :disabled="!form"
                 :loading="loading"
                 class="white--text teal lighten-1"
-                depressed
                 type="submit"
+                depressed
                 block
                 >Submit</v-btn
               >
@@ -79,14 +79,19 @@
                 ><span class="fa fa-facebook"></span> Facebook</a
               >
             </p>
-            <v-btn @click="siginWithFb"
-              ><v-icon color="primary" large>mdi-facebook</v-icon>sigin With
-              Fb</v-btn
+            <div class="pa-16 pt-6">
+
+            <v-btn @click="siginWithFb" class="mb-3 py-6 text-capitalize  d-flex  justify-space-around" outlined block
+              > 
+              <v-icon color="primary"  large>mdi-facebook</v-icon>
+               <span >log in with Facebook  </span>
+              </v-btn
             >
-            <v-btn @click="siginWithGoogle"
-              ><v-icon color="red" large>mdi-google</v-icon>sigin With
-              Google</v-btn
+            <v-btn @click="siginWithGoogle" outlined block class="py-6 text-capitalize d-flex   justify-space-around"
+              ><v-icon color="red" large>mdi-google</v-icon><span >sign With google  </span></v-btn
             >
+             
+            </div>
           </div>
         </v-card>
       </div>
@@ -101,7 +106,6 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider,
 } from "firebase/auth";
-import { CometChat } from "@cometchat-pro/chat";
 export default {
   name: "login",
 
@@ -202,6 +206,19 @@ export default {
           // ...
         });
     },
+    nav(){
+      window.location.replace('https://www.google.com/')
+    },
+  async  red(){
+      try {
+                  console.log("click");
+                  const res = await Functions.redirect()
+                  console.log(res);
+                  
+                } catch (error) {
+                  console.log(error);
+                }
+    },
     async login() {
       try {
         this.loading = true;
@@ -209,20 +226,10 @@ export default {
         this.loading = false;
         if (currentUser.status == "200") {
           let msg = `hello ${currentUser.data.user.name}`;
-          console.log(currentUser.data.user._id);
-          console.log(this.apiKey);
-          CometChat.login(currentUser.data.user._id, this.apiKey).then(
-            (user) => {
-              console.log(user);
-            },
-            (error) => {
-              this.showSpinner = false;
-              console.log("Login failed with error:", error);
-            }
-          );
           this.dialogNotifySuccess(msg);
           this.$store.dispatch("setallUserData", currentUser);
           this.$router.push("/");
+          // this.$router.push("/Vedio");
         }
       } catch (error) {
         this.alertError(error);

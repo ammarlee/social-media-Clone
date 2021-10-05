@@ -23,6 +23,7 @@ const routes = [
   ...MassageRoutes,
 
 
+
   {
     path: "/",
     name: "Home",
@@ -30,6 +31,24 @@ const routes = [
       default:()=>{ return import("../views/Home.vue")},
       header: header,
       footer: footer,
+    },
+  },
+  
+  // {
+  //   path: "/test",
+  //   name: "test",
+  //   components: {
+  //     default:()=>{ return import("../views/post/test.vue")},
+  //   },
+  // },
+  {
+    path: "/vedio",
+    name: "Video",
+    beforeEnter: guardPage,
+    components: {
+      default:()=>{ return import("../views/Vedio/Vedio.vue")},
+
+   
     },
   },
   

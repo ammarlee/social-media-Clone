@@ -34,7 +34,10 @@ Vue.use(VuetifyDialog, {
     vuetify
   }
 })
-Vue.prototype.$soketio = socktConnect("https://facebook-clones.herokuapp.com/");
+// Vue.prototype.$soketio = socktConnect("https://facebook-clones.herokuapp.com/");
+Vue.prototype.$soketio = socktConnect("http://localhost:3000/");
+
+
 Vue.mixin(Mixins);
 
 // const base = axios.create({
@@ -57,76 +60,85 @@ new Vue({
     try {
       let currentUrl = 'http://localhost:3000/'
       // let currentUrl = 'https://facebook-clones.herokuapp.com/'
+
+      let userToken = localStorage.getItem("userToken");
+      console.log({userToken});
+
       const posts = await Functions.getPosts();
       const users = await Functions.getusers();
       this.$store.dispatch("getPosts", posts.data.posts);
       this.$store.commit("setUsers", users.data.users);
+      
       const socket = socktConnect(currentUrl);
+      this.socket = socktConnect(currentUrl);
+      
+
+      if (this.user) {
         this.socket = socktConnect(currentUrl);
-
-      // let userToken = localStorage.getItem("userToken");
-
-      // if (this.user) {
-      //   this.socket = socktConnect(currentUrl);
-      //   // join the room
-      //   this.socket.emit("joinnotificationsRoom", this.$store.getters.getUser
-      //   );
-      //   //  socket for likes
-      //   this.socket.on("newLikeNotification", (data) => {
-      //     if (this.user._id.toString()  ==data.userId.toString() ) {
-      //       console.log('the same user');
+        // join the room
+        this.socket.emit("joinnotificationsRoom", this.$store.getters.getUser
+        );
+        //  socket for likes
+        this.socket.on("newLikeNotification", (data) => {
+          if (this.user._id.toString()  ==data.userId.toString() ) {
+            console.log('the same user');
             
-      //     }else{
-      //     this.addTheNotification(data);
+          }else{
+          this.addTheNotification(data);
 
-      //     this.playSound(
-      //       "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-      //     );}
-      //   });
-      //   //   socket for new comments
-      //   this.socket.on("newCommentNotification", (data) => {
+          this.playSound(
+            "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
+          );}
+        });
+        //   socket for new comments
+        this.socket.on("newCommentNotification", (data) => {
        
-      //     if (this.user._id.toString() ==data.userId.toString() ) {
-      //       console.log('the same user');
+          if (this.user._id.toString() ==data.userId.toString() ) {
+            console.log('the same user');
             
-      //     }else{
-      //     this.addTheNotification(data);
-      //     this.playSound(
-      //       "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-      //     );}
-      //   });
+          }else{
+          this.addTheNotification(data);
+          this.playSound(
+            "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
+          );}
+        });
 
-      // }else{
-      //   if(userToken=="null"){
-      //     this.$router.push("/login");
+      }else{
+        if(userToken=="null"){
+          this.$router.push("/login");
 
-      //   }else{
-      //     Functions.getuserWithToken(userToken).then((currentUser) => {
-      //       if(currentUser.data.user==null){
-      //      this.$router.push("/login");
-      //       }else{
-      //         this.$store.dispatch("setUser", currentUser.data.user);
-      //         this.$store.dispatch("setAuth", currentUser.data.authanticated);
-      //         this.$store.commit(
-      //           "setNotifications",
-      //           currentUser.data.user.friendsNotifications
-      //         );
-      //         this.$store.commit(
-      //           "setAllNotificationsAfterLogin",
-      //           currentUser.data.user.AllNotifications
-      //         );
-      //         this.$store.commit(
-      //           "setUserMessages",
-      //           currentUser.data.user.messageNotifications
-      //         );
+        }else{
+          Functions.getuserWithToken(userToken).then((currentUser) => {
+            console.log('get user',currentUser);
+            if(currentUser.data.user==null){
+           this.$router.push("/login");
+            }else{
+              this.$store.dispatch("setUser", currentUser.data.user);
+              this.$store.dispatch("setAuth", currentUser.data.authanticated);
+              this.$store.commit(
+                "setNotifications",
+                currentUser.data.user.friendsNotifications
+              );
+              this.$store.commit(
+                "setAllNotificationsAfterLogin",
+                currentUser.data.user.AllNotifications
+              );
+              this.$store.commit(
+                "setUserMessages",
+                currentUser.data.user.messageNotifications
+              );
+           this.$router.push("/");
 
-      //       }
-      //     });
 
-      //   }
+            }
+          });
 
-      // }
+        }
+
+      }
+      // CRUD Sockit
       socket.on("post", (data) => {
+      
         if (data.action == "create") {
           this.$store.dispatch("pushNewPost", data);
         } else if (data.action == "delete") {
@@ -178,13 +190,7 @@ new Vue({
   },
   },
   created () {
-    // Import the functions you need from the SDKs you need
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    
 const firebaseConfig = {
   apiKey: "AIzaSyAcM4BaMHnI9tXykVvh2JskcqSOBqkwgo4",
   authDomain: "arched-envelope-295913.firebaseapp.com",

@@ -62,11 +62,14 @@
             </v-hover>
           </div>
           <!-- img cropper -->
-      <cropper 
-      v-if="openCropperDialog"
-       @closeDialog="openCropperDialog= $event"
-        :mode="mode">
-        </cropper>
+           <input
+                type="file"
+                class="d-none"
+                @change="uploadProfileImg"
+                ref="profileImg"
+              />
+
+        <app-upload-image v-if="openCropperDialog"  @closeDialog="openCropperDialog= $event" :imgsrc="profileImgSrc" :mode="mode"></app-upload-image>
 
           <div class="text-center text-capitalize">
             <h1>{{ user.name }}</h1>
@@ -192,12 +195,14 @@
 <script>
 import Functions from "../../../../server/api";
 import tabsProfileVue from "../includesComponent/tabsProfile.vue";
-import cropper from "./image-cropper";
+import uploadImage from "./Upload-Image";
 export default {
   name: "mainProfile",
   components: {
     "app-profile-tabs": tabsProfileVue,
-    cropper,
+    'app-upload-image':uploadImage
+    
+    ,
   },
 
   data() {
@@ -213,6 +218,7 @@ export default {
       attrs: "",
       index: null,
       ProfileIndex: null,
+      profileImgSrc: null,
 
       oldUserData: {
         name: "",
@@ -249,14 +255,31 @@ export default {
   },
 
   methods: {
+    uploadProfileImg(e) {
+      const input = e.target.files;
+      var reader = new FileReader();
+      reader.readAsDataURL(input[0]);
+      reader.onload = () => {
+        this.profileImgSrc = reader.result;
+        this.openCropperDialog = true
+
+        // this.showSelectBtn = false;
+        // this.showCropper = true;
+        // this.showEditor = true;
+        // this.showImgAfterEdit = false;
+      };
+    },
     selectProfileImg(){
       this.mode = 'profile'
-      this.openCropperDialog=true
+      // this.openCropperDialog=true
+      this.$refs.profileImg.click();
+
 
     },
+   
       selectCoverImg() {
       this.mode="cover"
-      this.openCropperDialog=true
+      this.$refs.profileImg.click();
     },
     editProfile() {
       this.editDialog = true;

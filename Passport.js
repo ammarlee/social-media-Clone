@@ -18,7 +18,7 @@ passport.serializeUser((user, done)=> {
     clientID: "367548338436116",
     clientSecret: "d9206c8b897cbb44542ed92eecb7cb5b",
     callbackURL: "http://localhost:8080",
-    profileFields: ['id', 'displayName', 'name', 'gender', 'picture.type(large)','email']
+    profileFields: ['id','name','email']
   },  function(accessToken, refreshToken, profile, cb) {
     User.findOrCreate({ facebookId: profile.id }, function (err, user) {
       return cb(err, user);

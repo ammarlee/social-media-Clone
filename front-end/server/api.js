@@ -1,6 +1,14 @@
 import axios from "./mainApi";
 
 class Functions {
+
+// redirect ROUTERS
+static redirect() {
+  return axios().post(`red`);
+}
+
+
+
   // ADMIN ROUTERS
   //------------------------------------------------------------------------------
   static getPosts() {

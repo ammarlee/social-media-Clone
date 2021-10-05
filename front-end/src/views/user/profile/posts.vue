@@ -40,7 +40,7 @@
 <script>
 import addPost from "../../../views/post/Create-Post";
 import allPosts from "../../post/one";
-import allOptions from './menuOption'
+import allOptions from '../includesComponent/menuOption.vue'
 
 export default {
   name: "posts",
