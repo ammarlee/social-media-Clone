@@ -80,6 +80,7 @@ export default {
 
   mounted() {
     if (this.user) {
+      
      
       this.socket = this.$soketio;
       // join the room

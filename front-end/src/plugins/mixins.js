@@ -18,6 +18,12 @@ export  default{
     },
     currentUser(){
       return this.$store.getters.getUser
+    },
+    appId(){
+      return this.$store.getters.appId
+    },
+    apiKey(){
+      return this.$store.getters.apiKey
     }
   },
   methods: {

@@ -6,7 +6,7 @@
     <v-container v-if="!overlay">
       <v-row>
         <v-col cols="12" v-if="posts">
-          <v-card v-if="posts.length >0" class="mx-auto">
+          <v-card v-if="posts &&posts.length >0" class="mx-auto">
             <v-toolbar color="cyan" dark>
               <v-toolbar-title>saved Posts</v-toolbar-title>
             </v-toolbar>
@@ -40,7 +40,7 @@
             </v-list>
           </v-card>
         </v-col>
-        <v-col cols="12" v-if="posts.length <=0">
+        <v-col cols="12" v-if="posts && posts.length <=0">
           <h2 class="text-center text-capitalize pink--text">there is no saved posts for you</h2>
         </v-col>
       </v-row>
@@ -55,6 +55,8 @@ export default {
   data() {
     return {
       posts: null,
+      username:null,
+      uid:null,
     };
   },
   async mounted() {
@@ -70,6 +72,7 @@ export default {
   },
 
   methods: {
+    
     navegatetoPost(id) {
       this.$router.push("/singlePost/" + id);
     },

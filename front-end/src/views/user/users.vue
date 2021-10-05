@@ -1,8 +1,8 @@
 <template>
   <v-app>
-    <v-overlay :value="overlay">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
+ 
+<app-overlay :overlay="overlay" v-if="overlay"></app-overlay>
+
     <v-container v-if="!overlay">
       <v-row>
         <v-col cols="12" sm="12" md="12" lg="12">
@@ -137,11 +137,11 @@ export default {
       this.socket = this.$soketio;
       const res = await Functions.getusers();
       const u = await Functions.getCurrentUser(currentuser)
+        this.overlay = false
       this.user=u.data.user
       this.users = res.data.users.filter(i=>{
         return i._id !==currentuser
       });
-      this.overlay = false
     } catch (error) {
       this.overlay = false
       this.errors=error

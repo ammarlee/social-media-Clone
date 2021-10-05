@@ -4,31 +4,86 @@
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
     <div v-if="!overlay" class="content">
-      <div class="cover" id="cover-img">
-        <v-btn id="edit-btn" text @click="editCover">
-          <v-icon large class="white--text">mdi-pencil</v-icon>
 
-          <input type="file" ref="coverInput" @change="uploadCover" class="d-none" />
+      <div class="cover" id="cover-img">
+        <v-btn id="edit-btn" text @click="selectCoverImg">
+          <v-icon large class="white--text">mdi-pencil</v-icon>
         </v-btn>
-        <v-btn class="red edit-btn" small text @click.prevent="doit" v-if="showcoverbtn">update cover</v-btn>
+        <v-btn
+          class="red edit-btn"
+          small
+          text
+          @click.prevent="submitCoverUpdate"
+          v-if="showcoverbtn"
+          >update cover
+          </v-btn >
+        <CoolLightBox
+          :items="[user.coverImg]"
+          :fullScreen="true"
+          :index="index"
+          @close="index = null"
+        ></CoolLightBox> 
+        
+         <CoolLightBox
+          :items="[user.img]"
+          :fullScreen="true"
+          :index="ProfileIndex"
+          @close="ProfileIndex = null"
+        ></CoolLightBox>
+
+
+
         <div
+          @click="index = 0"
+          :src="[user.coverImg][0]"
           class="cover-img"
           id="theCoverImg"
           :style="{ 'background-image': 'url(' + user.coverImg + ')' }"
           alt="cover"
         ></div>
+
         <div class="user">
-          <div id="profile-img">
-            <v-avatar size="128" class="the-avatar">
-              <img :src="user.img" alt="profilepic" />
-            </v-avatar>
+          <div id="profile-img" @click="ProfileIndex = 0" :src="[user.img][0]">
+            <v-hover v-slot="{ hover }">
+              <v-avatar size="128" class="the-avatar">
+                <v-img
+                  :src="user.img"
+                  alt="profilepic"
+                  aspect-ratio="2"
+                ></v-img>
+                <v-fade-transition>
+                  <v-overlay v-if="hover" absolute color="#036358">
+                    <v-icon color="white" @click.stop="selectProfileImg"
+                      >mdi-pencil</v-icon
+                    >
+                  </v-overlay>
+                </v-fade-transition>
+              </v-avatar>
+            </v-hover>
           </div>
+          <!-- img cropper -->
+           <input
+                type="file"
+                class="d-none"
+                @change="uploadProfileImg"
+                ref="profileImg"
+              />
+
+        <app-upload-image v-if="openCropperDialog"  @closeDialog="openCropperDialog= $event" :imgsrc="profileImgSrc" :mode="mode"></app-upload-image>
+
           <div class="text-center text-capitalize">
-            <h1>{{user.name}}</h1>
+            <h1>{{ user.name }}</h1>
             <p>
-              {{user.bio}}
+              {{ user.bio }}
               <!-- EDIT BUTTON -->
-              <v-btn small class="info" v-bind="attrs" v-on="on" @click="editProfile" fab>
+              <v-btn
+                small
+                class="info"
+                v-bind="attrs"
+                v-on="on"
+                @click="editProfile"
+                fab
+              >
                 <v-icon small>mdi-pencil</v-icon>
               </v-btn>
             </p>
@@ -37,8 +92,7 @@
       </div>
       <v-container class="pt-0">
         <div class="head">
-          <app-profile-tabs header='/profile/' :tabs="tabs" ></app-profile-tabs>
-        
+          <app-profile-tabs header="/profile/" :tabs="tabs"></app-profile-tabs>
         </div>
         <router-view></router-view>
 
@@ -49,23 +103,50 @@
               <v-btn class="d-none" v-bind="attrs" v-on="on"></v-btn>
             </template>
             <v-card>
-              <v-card-title class="headline text-center text-capitalize grey lighten-2">edit profile</v-card-title>
+              <v-card-title
+                class="headline text-center text-capitalize grey lighten-2"
+                >edit profile</v-card-title
+              >
               <v-divider></v-divider>
               <v-container>
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field v-model="oldUserData.name" label="First name" required></v-text-field>
-                  </v-col>
-
-                  <v-col cols="12" md="6">
-                    <v-text-field v-model="oldUserData.bio" label="bio" required></v-text-field>
-                  </v-col>
-
-                  <v-col cols="12" md="6">
-                    <v-text-field v-model="oldUserData.email" label="E-mail" required></v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="6">
+                <v-row class="dense">
+                  <v-col cols="12" >
                     <v-text-field
+                      hide-details
+                      outlined
+                      dense
+                      v-model="oldUserData.name"
+                      label="First name"
+                      required
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="12" >
+                    <v-text-field
+                      hide-details
+                      outlined
+                      dense
+                      v-model="oldUserData.bio"
+                      label="bio"
+                      required
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="12" >
+                    <v-text-field
+                      hide-details
+                      outlined
+                      dense
+                      v-model="oldUserData.email"
+                      label="E-mail"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" >
+                    <v-text-field
+                      hide-details
+                      outlined
+                      dense
                       type="number"
                       v-model="oldUserData.age"
                       label="age"
@@ -73,52 +154,71 @@
                       :value="oldUserData.age"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field type="number" v-model="oldUserData.phone" label="phone" required></v-text-field>
+                  <v-col cols="12" >
+                    <v-text-field
+                      hide-details
+                      outlined
+                      dense
+                      type="number"
+                      v-model="oldUserData.phone"
+                      label="phone"
+                      required
+                    ></v-text-field>
                   </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field v-model="oldUserData.city" label="city" required></v-text-field>
+                  <v-col cols="12" >
+                    <v-text-field
+                      hide-details
+                      outlined
+                      dense
+                      v-model="oldUserData.city"
+                      label="city"
+                      required
+                    ></v-text-field>
                   </v-col>
-                  <v-col cols="12" md="6">
-                    <v-btn
-                      class="text-capitalize mb-3"
-                      @click="$refs.profileImg.click()"
-                    >upload profile photo</v-btn>
-                    <v-avatar tile>
-                      <v-img v-if="oldUserData.img" :src="oldUserData.img"></v-img>
-                    </v-avatar>
-                    <input type="file" class="d-none" @change="uploadProfileImg" ref="profileImg" />
-                  </v-col>
+                 
                 </v-row>
               </v-container>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="success" block @click="submitProfile">edit</v-btn>
+                <v-btn color="success" block @click="updateProfile"
+                  >edit</v-btn
+                >
               </v-card-actions>
             </v-card>
           </v-dialog>
         </div>
+        <!-- /img dialog  -->
       </v-container>
     </div>
   </v-app>
 </template>
 <script>
 import Functions from "../../../../server/api";
-import tabsProfileVue from '../includesComponent/tabsProfile.vue';
+import tabsProfileVue from "../includesComponent/tabsProfile.vue";
+import uploadImage from "./Upload-Image";
 export default {
   name: "mainProfile",
-   components:{
-    'app-profile-tabs':tabsProfileVue
+  components: {
+    "app-profile-tabs": tabsProfileVue,
+    'app-upload-image':uploadImage
+    
+    ,
   },
+
   data() {
     return {
-      dialog: false,
+      overlay: false,
+      mode:"",
+      openCropperDialog: false,
       editDialog: false,
       showcoverbtn: false,
       rout: this.$route.name,
       items: null,
       on: "",
       attrs: "",
+      index: null,
+      ProfileIndex: null,
+      profileImgSrc: null,
 
       oldUserData: {
         name: "",
@@ -129,8 +229,7 @@ export default {
         phone: "",
         bio: "",
       },
-      userCover: [],
-        tabs: [
+      tabs: [
         { id: this.$route.params.id, pageName: "", name: "posts" },
         {
           id: this.$route.params.id,
@@ -143,13 +242,11 @@ export default {
           name: "pictures",
         },
       ],
-
     };
   },
-  mounted() {},
+
   computed: {
     user() {
-      console.log('computed work');
       return this.$store.getters.getUser;
     },
     user_id() {
@@ -158,85 +255,68 @@ export default {
   },
 
   methods: {
-    editProfile() {
-      this.editDialog = true;
-      let u = this.user;
-      this.oldUserData = {
-        name: u.name,
-        userId: u._id,
-        email: u.email,
-        age: u.age,
-        city: u.city,
-        phone: u.phone,
-        bio: u.bio,
-        img: u.img,
-      };
-    },
-    async submitProfile() {
-      try {
-        if (this.oldUserData.img == this.user.img) {
-          this.oldUserData.img = null;
-        }
-        // this.overlay = true;
-        const res = await Functions.editProfile(this.oldUserData);
-        this.editDialog = false;
-        this.$store.commit("updateUser", res.data);
-        // this.overlay = false;
-      } catch (error) {
-        // this.overlay = false;
-        this.errors = error;
-      }
-    },
-
-    editCover() {
-      this.$refs.coverInput.click();
-    },
-    async doit() {
-      try {
-        const formData = new FormData();
-        for (const i of Object.keys(this.userCover)) {
-          formData.append("files", this.userCover[i]);
-        }
-        this.overlay = true;
-        let res = await Functions.editCover({
-          userId: this.user._id,
-          formData,
-        });
-        this.showcoverbtn = false;
-        this.user.coverImg = res.data.newImage
-        this.$store.commit("updateUserCover", res.data);
-        this.overlay = false;
-      } catch (error) {
-        this.overlay = false;
-        this.errors = error;
-      }
-    },
     uploadProfileImg(e) {
       const input = e.target.files;
       var reader = new FileReader();
       reader.readAsDataURL(input[0]);
       reader.onload = () => {
-        this.oldUserData.img = reader.result;
-      };
-      alert(this.oldUserData.img);
-    },
-    uploadCover(e) {
-      this.userCover = e.target.files;
-      this.showcoverbtn = true;
-    },
-    uploadFile(e) {
-      const input = e.target.files;
-      var reader = new FileReader();
-      reader.readAsDataURL(input[0]);
-      reader.onload = () => {
-        this.dialogData.img.push(reader.result);
+        this.profileImgSrc = reader.result;
+        this.openCropperDialog = true
+
+        // this.showSelectBtn = false;
+        // this.showCropper = true;
+        // this.showEditor = true;
+        // this.showImgAfterEdit = false;
       };
     },
+    selectProfileImg(){
+      this.mode = 'profile'
+      // this.openCropperDialog=true
+      this.$refs.profileImg.click();
+
+
+    },
+   
+      selectCoverImg() {
+      this.mode="cover"
+      this.$refs.profileImg.click();
+    },
+    editProfile() {
+      this.editDialog = true;
+      const { img, bio, phone, city, age, email, name } = this.user;
+      this.oldUserData = {
+        userId: this.user._id,
+        img,
+        bio,
+        phone,
+        city,
+        age,
+        email,
+        name,
+      };
+    },
+    async updateProfile() {
+      try {
+        // this.overlay = true;
+        const {data} = await Functions.editProfile(this.oldUserData);
+        this.editDialog = false;
+        this.$store.commit("updateUser", data);
+        // this.overlay = false;
+      } catch (error) {
+        // this.overlay = false;
+        this.errors = error;
+      }
+    },
+
   },
 };
 </script>
 
 <style lang="scss" scoped>
+#cover-img,
+#profile-img {
+  cursor: pointer;
+}
 #cover-img {
   position: relative;
   #edit-btn,
@@ -265,12 +345,12 @@ export default {
       border: 4px solid white;
     }
   }
-   #theCoverImg {
-      min-height: 409px;
-      max-height: 410px;
-      background-size: cover;
-      background-position: center;
-    }
+  #theCoverImg {
+    min-height: 409px;
+    max-height: 410px;
+    background-size: cover;
+    background-position: center;
+  }
   @media only screen and (max-width: 600px) {
     #profile-img {
       bottom: 26%;
@@ -281,9 +361,9 @@ export default {
       min-height: 240px;
     }
     #edit-btn,
-  .edit-btn {
-    bottom: 29%;
-  }
+    .edit-btn {
+      bottom: 29%;
+    }
   }
 }
 </style>

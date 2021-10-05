@@ -4,6 +4,7 @@
       <v-card class="mx-auto" v-if="post" rounded="lg" style="cursor: pointer">
         <!-- new -->
         <!-- the user data and time  -->
+        
         <v-list two-line class="theListDiv pt-0 pb-0">
           <v-list-item>
             <v-list-item-avatar style="cursor: pointer">
@@ -27,7 +28,9 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
-        <!-- the post content description andimage  -->
+
+
+        <!-- the post content description and image  -->
         <v-list-item>
           <v-card-text class="mb-0 mt-0 pb-0 pt-0">
             <div class="my-4 subtitle-1 text-capitalize" @click="goTo(post)">{{post.description}}</div>
@@ -41,6 +44,7 @@
             :max-height="heights"
             :src="post.img[0]"
           ></v-img>
+
            <CoolLightBox :items="post.img " :fullScreen="true" :index="index" @close="index = null"></CoolLightBox>
         </div>
         <!-- the post actions like like and comments  -->
@@ -156,12 +160,12 @@
 
 <script>
 import Functions from "../../../server/api";
-
 import optionsComment from "../post/optionsComment";
 export default {
   name: "one",
   components: {
     "app-options-comment": optionsComment,
+    
   },
   props: ["post", "heights"],
   data() {

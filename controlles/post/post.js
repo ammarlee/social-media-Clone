@@ -11,15 +11,24 @@ const index = client.initIndex("facebook");
 const Moment = require("moment");
 // ______________________________________
 
+const socketAction = ({emitType,action,msg,post,userDate})=>{ 
+  io.getIO().emit(emitType, {
+    action,
+    post,
+    userDate,
+    msg,
+  });
+}
 exports.creatPost = async (req, res, next) => {
   let data = JSON.parse(req.body.data);
-  const userId = data.userId;
-  const description = data.description;
+  const {userId,description} = data;
   let files = req.files;
   const d = Moment().format("MMMM Do YYYY, h:mm:ss a");
   let date = d.toLocaleString();
+
   try {
     const user = await User.findOne({ _id: userId });
+    let msg ="new post has been added "
     let userDate = {
       _id: user._id,
       img: user.img,
@@ -27,42 +36,39 @@ exports.creatPost = async (req, res, next) => {
       email: user.email,
     };
     if (files.length <= 0) {
+
       const post = new Post({ userId, description, date });
+
       await post.save();
 
-      io.getIO().emit("post", {
-        action: "create",
-        post,
-        userDate,
-        msg: "new post has been added ",
-      });
-      return res.status(200).json({ post, msg: "you have added a new post" });
+      socketAction({emitType:'post',action:'create',msg,post,userDate})
+
+      return res.status(200).json({ post, msg});
     }
     const uploader = async (path) => await clody.uploads(path);
     let urls = [];
+
     for (let file of files) {
       const { path } = file;
       const newpath = await uploader(path);
-      console.log(newpath);
       urls.push(newpath);
     }
-    console.log(urls);
+
     const images = urls.map((p) => {
       return p.url;
     });
+
     const post = new Post({ description, userId, img: images, date });
     await post.save();
     images.forEach((i) => {
       user.pics.push(i);
     });
     await user.save();
-    io.getIO().emit("post", {
-      action: "create",
-      post,
-      userDate,
-      msg: "new post has been added ",
-    });
-    res.status(200).json({ success: true, post });
+
+     socketAction({emitType:'post',action:'create',msg,post,userDate})
+
+    res.status(200).json({ success: true, post,msg });
+
   } catch (error) {
     console.log(error);
     res.status(400).json({
@@ -73,13 +79,12 @@ exports.creatPost = async (req, res, next) => {
 };
 exports.deletePost = async (req, res, next) => {
   const postId = req.body.postId;
+  const msg ="new post has been added "
   try {
     const deleted = await Post.findByIdAndDelete(postId);
-    io.getIO().emit("post", {
-      action: "delete",
-      post: deleted,
-      msg: "new post has been added ",
-    });
+
+    socketAction({emitType:'post',action:"delete",msg,post:deleted,userDate:null})
+
     res.status(200).json({
       success: true,
       post: deleted,
@@ -98,22 +103,22 @@ exports.editPost = async (req, res, next) => {
   const postId = data.id;
   const description = data.description;
   let files = req.files;
-  console.log(files.length);
+
   try {
+    let msg = "you have edited your post"
+
     if (files.length <= 0) {
+
       const post = await Post.findOneAndUpdate(
         { _id: postId },
         { description },
         { new: true }
       );
-      io.getIO().emit("post", {
-        action: "edit",
-        post,
-        msg: "edited the  post  ",
-      });
+      socketAction({emitType:'post',action:"edit",msg,post,userDate:null})
 
-      return res.status(200).json({ post, msg: "you have edited your post" });
+      return res.status(200).json({ post, msg });
     } else {
+
       const uploader = async (path) => await clody.uploads(path);
       let urls = [];
       for (let file of files) {
@@ -130,13 +135,9 @@ exports.editPost = async (req, res, next) => {
         { description, img: images },
         { new: true }
       );
-      io.getIO().emit("post", {
-        action: "edit",
-        post,
-        msg: "edited the post ",
-      });
-
-      return res.status(200).json({ post, msg: "you have edited your post" });
+      
+      socketAction({emitType:'post',action:"edit",msg,post,userDate:null})
+      return res.status(200).json({ post, msg});
     }
   } catch (error) {
     console.log(error);
@@ -171,8 +172,8 @@ exports.createComment = async (req, res, next) => {
       img: user.img,
     });
     await comment.save();
-    console.log(comment.comments.length - 1);
     const s = comment.comments.length - 1;
+
     io.getIO().emit("post", {
       action: "comment",
       comment: comment.comments[s],
@@ -202,6 +203,7 @@ exports.addLike = async (req, res, next) => {
       post.reacts.push({ userId: userId, date });
       await post.save();
       const s = post.reacts.length - 1;
+
       io.getIO().emit("post", {
         action: "like",
         like: post.reacts[s],
@@ -319,6 +321,7 @@ exports.editComment = async (req, res, next) => {
       },
       { new: true }
     );
+
     io.getIO().emit("post", {
       action: "editComment",
       commentId,
@@ -355,7 +358,6 @@ exports.savePost = async (req, res, next) => {
 exports.removePostFromFavourite = async (req, res, next) => {
   const postId = req.body.postId;
   const userId = req.body.userId;
-  console.log(req.body);
   try {
     const user = await User.findByIdAndUpdate(
       { _id: userId },

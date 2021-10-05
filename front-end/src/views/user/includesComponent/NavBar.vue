@@ -31,6 +31,7 @@
         <div  class="pt-3" v-if="getUser">
          <v-badge color="green" class="mr-3"  overlap bordered :content="allNotifications.length">
             <v-menu
+            transition="slide-y-transition"
               v-if="getUser"
               class="allTHeOne"
               style="overflow: scroll !important; max-height: 500px !important;"
@@ -83,6 +84,7 @@
           <!-- menu for messg -->
           <v-badge color="pink" overlap class="mr-3" bordered :content="allMsgs.length">
             <v-menu
+            transition="slide-y-transition"
               v-if="getUser"
               bottom
               min-width="200px"
@@ -138,6 +140,7 @@
           <!-- friend Requests -->
           <v-badge color="green" class="mr-3" overlap bordered :content="notifications.length">
             <v-menu
+            transition="slide-y-transition"
               v-if="getUser"
               style="overflow: scroll !important; max-height: 500px !important;"
               bottom
@@ -187,7 +190,7 @@
             </v-menu>
           </v-badge>
          <!-- user options  -->
-          <v-menu v-if="getUser" bottom min-width="200px" rounded offset-y>
+          <v-menu  transition="slide-y-transition" v-if="getUser" bottom min-width="200px" rounded offset-y>
             <template v-slot:activator="{ on }">
               <v-btn small  fab text  v-on="on" class="mt-n2">
                   <v-avatar  :size="30">
@@ -258,12 +261,7 @@ export default {
        
     };
   },
-  created () {
-    console.log('ctreated');
-    console.log(this.notifications);
-    console.log(this.allNotifications);
-    ;
-  },
+ 
   mounted() {
     this.test = this.$store.getters.notifications;
     this.socket = this.$soketio;

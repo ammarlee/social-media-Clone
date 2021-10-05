@@ -28,6 +28,12 @@ const getters = {
 
 }
 const mutations = {
+  updateProfileImg(state, payload){
+    state.user.img=payload
+  },
+  updateCoverImg(state, payload){
+    state.user.coverImg=payload
+  },
     updateNotification(state,payload){
         let indexofElement = state.user.notifications.findIndex(i=>{
            return i._id.toString()==payload._id.toString()
@@ -51,11 +57,11 @@ const mutations = {
     setAllNotificationsAfterLogin(state, payload) {
       state.allNotifications = payload;
     },
-     setNewUser(state, value) {
-       state.users.push(value) ;
+     setNewUser(state, payload) {
+       state.users.push(payload) ;
      },
-     updateUser(state, value) {
-       state.user = value.user;
+     updateUser(state, payload) {
+       state.user = payload.user;
      },
     
      pushNewOnlineUser(state, payload) {

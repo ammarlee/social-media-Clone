@@ -17,13 +17,6 @@ export default [
       },
 
       {
-        path: "profileDetails",
-        name: "profileDetails",
-        components: {
-          default:()=>{ return import("../views/user/profile/details.vue")}}
-      },
-
-      {
         path: "profileFriends",
         name: "profileFriends",
         components: {

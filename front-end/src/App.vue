@@ -13,6 +13,7 @@
     </router-view>
   </v-app>
 </template>
+
 <style scoped lang="scss">
 
 #thenavbar{

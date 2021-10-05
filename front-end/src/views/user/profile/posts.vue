@@ -8,7 +8,7 @@
               
             </v-col>
             
-            <v-col cols="12" sm="6">
+            <v-col cols="12" sm="12" md="6" >
               <app-new-post></app-new-post>
               <div v-if='posts.length>0'>
               <app-all-posts
@@ -26,7 +26,8 @@
 
               </div>
               <div v-else>
-               <v-alert color="red" outlined type="info"> there is no posts avalible for that user</v-alert>
+                   <app-Alert color="red" 
+                   msg="there is no posts avalible for that user"></app-Alert>
                </div>
             </v-col>
           </v-row>
@@ -37,9 +38,9 @@
 </template>
 
 <script>
-import addPost from "../../../views/post/createPost";
+import addPost from "../../../views/post/Create-Post";
 import allPosts from "../../post/one";
-import allOptions from './menuOption'
+import allOptions from '../includesComponent/menuOption.vue'
 
 export default {
   name: "posts",

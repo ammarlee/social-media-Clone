@@ -7,8 +7,9 @@ router.post('/profile/:friendId',UserControlles.profile)
 router.get('/getSpecificUser/:userId',UserControlles.getSpecificUser)
 router.get('/getuserToken/:userToken',UserControlles.getUserWithToken)
 router.get('/current-user/:id',UserControlles.currentUser)
-router.post('/edit-profile/:userId',Multer.array('files', 10),UserControlles.EditProfile)
-router.post('/edit-cover/:userId',Multer.array('files', 10),UserControlles.EditCover)
+router.post('/edit-profile/:userId/:mode',UserControlles.EditProfile)
+
+router.put('/cropped-img/:userId',Multer.array('files', 10),UserControlles.uploadCroppedImage)
 // send a new friend request
 router.post('/add-friend-request/',UserControlles.addFriendRequest)
 router.post('/accept-new-friend/',UserControlles.acceptNewFriend)

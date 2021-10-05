@@ -1,9 +1,10 @@
 <template>
   <v-app>
-    <v-overlay :value="overlay">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
-    <v-container v-if="!overlay">
+
+   <app-overlay :overlay="overlay" v-if="overlay"></app-overlay>
+        
+    <v-container v-if="!overlay" id="mainCont" class="d-flex justify-center align-center">
+
       <v-card max-width="450" v-if="users.length>0" class="mx-auto">
         <v-toolbar color="cyan" dark>
           <v-app-bar-nav-icon></v-app-bar-nav-icon>
@@ -41,10 +42,8 @@
           </v-row>
         </v-list>
       </v-card>
-      <h2
-        v-else
-        class="text-capitalize text-center mt-10 pink--text font-weight-bold"
-      >you have not any new friends requests</h2>
+       <app-Alert color="red" msg="you have not any new friends requests"></app-Alert>
+  
     </v-container>
   </v-app>
 </template>
@@ -57,7 +56,7 @@ export default {
   name: "friendsRequest",
   data() {
     return {
-      users: "",
+      users:[],
     };
   },
   async mounted() {
@@ -67,6 +66,7 @@ export default {
       const res = await Functions.getFreindRequest(
         this.currentUser._id
       );
+      console.log(res);
       this.users = res.data.friends;
       this.overlay = false;
     } catch (error) {

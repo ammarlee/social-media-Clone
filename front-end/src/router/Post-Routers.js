@@ -2,6 +2,7 @@ import guardPage from "./Guards/guardPage";
 import header from "../views/user/includesComponent/NavBar.vue";
 import footer from "../views/user/includesComponent/Footer.vue";
 export default [
+
     {
         path: "/singlePost/:id",
         name: "singlePost",
