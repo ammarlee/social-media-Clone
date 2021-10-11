@@ -112,12 +112,12 @@ export default {
   data() {
     return {
       user: {
-        email: "ammar@gmail.com",
+        email: "ammarlee16@gmail.com",
         password: "123123Aa!",
       },
       user2:[
         {
-        email: "ammar@gmail.com",
+        email: "ammarlee16@gmail.com",
         password: "123123Aa!",
       },
       {
@@ -227,7 +227,10 @@ export default {
         if (currentUser.status == "200") {
           let msg = `hello ${currentUser.data.user.name}`;
           this.dialogNotifySuccess(msg);
+          
           this.$store.dispatch("setallUserData", currentUser);
+          this.$store.dispatch('logInToCometChat',currentUser.data.user);
+
           this.$router.push("/");
           // this.$router.push("/Vedio");
         }

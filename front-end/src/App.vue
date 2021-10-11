@@ -14,6 +14,13 @@
   </v-app>
 </template>
 
+<script>
+export default {
+  mounted () {
+    this.$store.dispatch('fetchPostsFromDb')
+  },
+}
+</script>
 <style scoped lang="scss">
 
 #thenavbar{

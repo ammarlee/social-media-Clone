@@ -45,12 +45,11 @@ export default {
   },
 
   mounted() {
-    this.socket = this.$soketio;
     if (this.$store.getters.getUser) {
-      this.socket.emit("goOnlineTwo", this.$store.getters.getUser);
+       this.$soketio.emit("goOnlineTwo", this.$store.getters.getUser);
     }
-    this.socket.on("currentOnlineFriendsTwo", (data) => {
-      let t = data.map((i) => {
+     this.$soketio.on("currentOnlineFriendsTwo", (data) => {
+      let editOnlineInterface = data.map((i) => {
         return {
           chatId: i.chatId,
           friendName: i.friendId.name,
@@ -58,9 +57,9 @@ export default {
           friendId: i.friendId._id,
         };
       });
-      this.$store.commit("onlineUsers", t);
-      this.recent = t;
-    });
+      this.$store.commit("onlineUsers", editOnlineInterface);
+      this.recent = editOnlineInterface;
+    }); 
   },
   data() {
     return {
@@ -81,12 +80,7 @@ export default {
       return this.$store.getters.onlineUsers;
     },
   },
-  watch: {
-    recent(val) {
-      console.log("changed");
-      console.log(val);
-    },
-  },
+
 };
 </script>
 

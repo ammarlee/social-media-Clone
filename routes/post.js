@@ -31,6 +31,9 @@ const protect= async(req,res,next)=>{
 router.post('/create-post',Multer.array('files', 10),postController.creatPost)
 router.post('/edit-post',Multer.array('files', 10),postController.editPost)
 router.post('/searching-post',postController.searchingInPosts)
+router.post('/update-notification',postController.updateNotification)
+
+
 router.post('/delete-post',postController.deletePost)
 router.post('/create-comment',postController.createComment)
 router.post('/add-like',postController.addLike)

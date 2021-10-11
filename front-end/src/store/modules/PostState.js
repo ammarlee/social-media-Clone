@@ -1,3 +1,4 @@
+import Functions from "../../../server/api";
 const state = {
   posts: [],
   comments: [],
@@ -25,9 +26,6 @@ const mutations = {
       name: payload.name,
       img: payload.img,
     };
-    console.log({ state: state });
-    console.log({ posts: state.posts });
-    console.log({ postId });
     const specificPost = state.posts.findIndex((p) => {
       return p._id == postId;
     });
@@ -66,8 +64,16 @@ const mutations = {
     };
     state.posts.unshift(finalData);
   },
-  getPosts(state, payload) {
-    state.posts = payload;
+ async fetchPostsFromDb(state,) {
+   try {
+    const posts = await Functions.getPosts();
+    state.posts = posts.data.posts;
+    return
+    
+  } catch (error) {
+    console.log(error);
+  }
+
   },
 
   deletePost(state, payload) {
@@ -84,6 +90,9 @@ const mutations = {
   },
 };
 const actions = {
+  fetchPostsFromDb ({ commit }) {
+    commit("fetchPostsFromDb");
+  },
   editComment({ commit }, payload) {
     commit("editComment", payload);
   },

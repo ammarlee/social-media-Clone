@@ -21,7 +21,7 @@ router.get('/get-message/:id',UserControlles.getMessage)
 router.get('/friendsRequests/:userId',UserControlles.friendsRequests)
 router.post('/delete-friend/:friendId',UserControlles.deletFriend)
 router.post('/reject-new-friend/',UserControlles.rejectNewFriend)
-router.post('/friends-request-notification/',UserControlles.friendRequestnotifications)
+
 router.post('/push-all-notifications/',UserControlles.pushAllNotifications)
 
 

@@ -23,38 +23,42 @@
                 <v-col cols="12">
                   <div id="actionDiv">
                     <!-- 1- if the user in friend list -->
-                    <div v-if="infriendsList">
-                      <v-btn large icon outlined class="success mr-2">
-                        <v-icon class="mr-1 white--text">mdi-account-star-outline</v-icon>
-                      </v-btn>
-                      <v-btn outlined class="pink white--text" @click="unfriend()">
-                        <v-icon class="mr-1" small>mdi-account-cancel-outline</v-icon>unfriend
-                      </v-btn>
-                    </div>
-                    <div v-else-if="newFriendsRequests">
-                      <v-btn
-                        outlined
-                        class="yellow white--text mr-1"
-                        v-if="inrequestFriends"
-                        @click="cancelFriendRequest() "
-                      >
-                        <v-icon class="mr-1" small>mdi-account-alert-outline</v-icon>cancle
-                      </v-btn>
-                      <v-btn
+
+                    <div v-if="inrequestFriends && newFriendsRequests">
+                       <v-btn
                         outlined
                         class="primary white--text"
-                        v-if="inrequestFriends"
                         @click="acceptFriend() "
                       >
                         <v-icon class="mr-1" small>mdi-account-alert-outline</v-icon>accept
                       </v-btn>
-                    </div>
 
-                    <div v-else>
-                      <v-btn outlined class="success white--text" @click="addFriend()">
+                    </div>
+                    <div v-if="inrequestFriends || newFriendsRequests">
+                       <v-btn
+                        outlined
+                        class="yellow white--text mr-1"
+                        @click="cancelFriendRequest() "
+                      >
+                        <v-icon class="mr-1" small>mdi-account-alert-outline</v-icon>cancle
+                      </v-btn>
+
+                    </div>
+                    <div v-if="!inrequestFriends && !newFriendsRequests && !infriendsList">
+                      <v-btn outlined class="success white--text" @click="sendFriendRequest()">
                         <v-icon small>mdi-account-arrow-right-outline</v-icon>add friend
                       </v-btn>
                     </div>
+                    <div v-if="infriendsList">
+                      <!-- <v-btn large icon outlined class="success mr-2">
+                        <v-icon class="mr-1 white--text">mdi-account-star-outline</v-icon>
+                      </v-btn> -->
+                       <v-icon class="mr-1 white--text">mdi-account-star-outline</v-icon>
+                      <v-btn outlined class="pink white--text" @click="unfriend()">
+                        <v-icon class="mr-1" small>mdi-account-cancel-outline</v-icon>unfriend
+                      </v-btn>
+                    </div>
+
                     <!-- will appear anyway the msg button -->
                     <div>
                       <v-btn outlined class="success ml-1 white--text" @click="sendMsg()">
@@ -116,7 +120,7 @@ export default {
     };
   },
   async mounted() {
-    this.socket = this.$soketio;
+    
     try {
       let alldata = {
         friendId: this.$route.params.id,
@@ -125,6 +129,7 @@ export default {
       const res = await Functions.getYourProfile(alldata);
       this.user = res.data.user;
       let statues =res.data
+      console.log(statues);
       this.buttonsStatus(statues.infriendsList,statues.inRequestFriends,statues.newFriendsRequests)
     } catch (error) {
       this.errors = error;
@@ -136,22 +141,22 @@ export default {
       this.inrequestFriends = b;
       this.newFriendsRequests = c;
     },
-    async addFriend() {
-      try {
-        await Functions.sendFriendRequest(this.data);
-        this.buttonsStatus('false','true','false')
-        
-        let u = this.currentUser;
-        const noti = {
-          userId: u._id,
-          name: u.name,
-          img: u.img,
+    async sendFriendRequest() {
+
+      let CurrentUser = this.currentUser;
+          const requestInfo = {
+          userId: CurrentUser._id,
+          name: CurrentUser.name,
+          img: CurrentUser.img,
           friendId: this.data.friendId,
-          action: "newNotification",
-          msg: " have sent you friend request ",
+          action:"newNotification",
+          msg:' have sent you friend request ',
         };
-        await Functions.friendRequestNotifications(noti);
-        this.socket.emit("sendFriendRequest", noti);
+      try {
+
+        await Functions.sendFriendRequest(requestInfo);
+        this.buttonsStatus(false,true,false)
+        this.$soketio.emit("sendFriendRequest", requestInfo);
       } catch (error) {
         this.errors = error;
       }
@@ -172,8 +177,8 @@ export default {
         const res = await Functions.rejectfriend(this.data);
         this.infriendsList = false;
         this.inrequestFriends = false;
-
         console.log(res);
+
       } catch (error) {
         console.log(error);
       }
@@ -188,7 +193,7 @@ export default {
         this.overlay = true;
         let res = await Functions.acceptNewFriend(data);
         if (res.status == 200) {
-          this.buttonsStatus("true","false","false")
+          this.buttonsStatus(true,false,false)
           const noti = {
             userId: u._id,
             name: u.name,
@@ -198,7 +203,7 @@ export default {
             msg: " have acccepted  your friend request ",
           };
           await Functions.friendRequestNotifications(noti);
-          this.socket.emit("sendFriendRequest", noti);
+          this.$soketio.emit("sendFriendRequest", noti);
         }
 
         this.overlay = false;

@@ -239,7 +239,6 @@ export default {
       try {
         if (this.checking) {
           let res = await Functions.removeLike(postData);
-          console.log(res.data.post.reacts);
           this.post.reacts = res.data.post.reacts;
           //  post.reacts.push({})
           this.checking = false;
