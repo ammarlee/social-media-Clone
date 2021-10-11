@@ -53,6 +53,7 @@ const PostSchema = new Schema({
 const algolia_api ='51ba31f56313488518c91d7571cddcde'
 const application_id = '5AX3QTWUTZ'
 const application_index='facebook'
+
 PostSchema.plugin(mongooseAlgolia, {
     appId: application_id,
     apiKey: algolia_api,

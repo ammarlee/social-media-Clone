@@ -5,22 +5,27 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "develop": "sh develop.sh",
+    "dev": "watch 'npm run develop' ."
   },
   "dependencies": {
-    "@cometchat-pro/chat": "^3.0.0",
+    "@cometchat-pro/chat": "3.0.1",
     "@kevinfaguiar/vue-twemoji-picker": "^5.7.4",
     "@stripe/stripe-js": "^1.11.0",
     "cloudinary-vue": "^1.1.2",
     "core-js": "^3.6.5",
     "cropperjs": "^1.5.12",
+    "dateformat": "^4.5.1",
     "emoji-mart-vue": "^2.6.6",
+    "emoji-mart-vue-fast": "^10.0.1",
     "firebase": "^9.0.2",
     "mapbox-gl": "^1.12.0",
     "peerjs": "^1.3.2",
     "simple-peer": "^9.11.0",
     "socket.io-client": "^3.0.4",
     "sweetalert": "^2.1.2",
+    "twemoji": "^13.1.0",
     "v-img": "^0.2.0",
     "vue": "^2.6.11",
     "vue-advanced-cropper": "^1.8.2",
@@ -33,6 +38,7 @@
     "vue-hover": "^1.1.2",
     "vue-image-crop-upload": "^3.0.3",
     "vue-img-viewer": "^1.5.0",
+    "vue-moment": "^4.1.0",
     "vue-pdf": "^4.2.0",
     "vue-router": "^3.2.0",
     "vue-socket.io": "^3.0.10",
@@ -66,6 +72,7 @@
     "sass-loader": "^8.0.2",
     "vue-cli-plugin-vuetify": "~2.0.7",
     "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.3.0"
+    "vuetify-loader": "^1.3.0",
+    "watch": "^1.0.2"
   }
 }

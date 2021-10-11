@@ -3,17 +3,18 @@
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
+
     <v-card v-if="!overlay">
       <!-- dettails user in top of the conversation -->
       <div>
         <v-list one-line class="theListDiv grey lighten-5 pt-0 pb-0">
           <v-list-item>
             <v-list-item-avatar>
-              <v-img :src="theAnotherUser2.img"></v-img>
+              <v-img :src="secondUser.img"></v-img>
             </v-list-item-avatar>
             <v-list-item-content class="pt-0">
               <v-list-item-subtitle class="text-h6 black--text font-weight-bold text-capitalize">
-                {{theAnotherUser2.name}}
+                {{secondUser.name}}
                 <v-btn @click="hideMsg" style=" position: absolute;right: 4px;top: 8px;" small icon>
                   <v-icon>mdi-close</v-icon>
                 </v-btn>
@@ -26,7 +27,7 @@
 
       <!-- the masswges -->
       <div
-        style=" overflow-y: scroll; max-height:220px; min-height:219px"
+        style=" overflow-y: scroll; max-height:220px; min-height:350px"
         id="theCard"
         class="mx-auto"
       >
@@ -36,21 +37,21 @@
           
             <div class="">
             <v-list-item-avatar size="150"  class="ml-10">
-              <v-img :src="theAnotherUser2.img"></v-img>
+              <v-img :src="secondUser.img"></v-img>
             </v-list-item-avatar>
             <!-- <v-list-item-content class="pt-0 d-block"> -->
               <v-list-item-subtitle class="text-h4 black--text text-center font-weight-bold text-capitalize">
-                {{theAnotherUser2.name}}
+                {{secondUser.name}}
               </v-list-item-subtitle>
               <v-list-item-subtitle class="text-caption cyan--text text-center font-weight-bold text-capitalize">
-                {{theAnotherUser2.bio}}
+                {{secondUser.bio}}
               </v-list-item-subtitle>
             </div>
      
         </v-list>
       </div>
           <div
-            v-for="item in items"
+            v-for="item in conversations"
             :key="item._id"
             style=" max-height:520px; min-height:40px"
             class="theMainOne"
@@ -67,7 +68,7 @@
 
                 <v-list-item-content
                   class="px-1 py-0 mb-1"
-                  :title="new Date(+item.timeStamp).getHours() + ':'+ new Date(+item.timeStamp).getMinutes()"
+                  :title="item.timeStamp || moment('MMMM Do YYYY, h:mm:ss a')"
                 >
                   <v-textarea
                     auto-grow
@@ -97,7 +98,6 @@
 
 <script>
 import Functions from "../../../server/api";
-
 import emojiPickerVue from '../post/emojiPicker.vue';
 
 export default {
@@ -109,15 +109,19 @@ export default {
 
   data() {
     return {
-      // chatId: this.chatIdfromanother ||this.$route.params.id,
-      items: [],
       messsage: "",
       allmsgs: [],
-      theAnotherUser: "",
-      theAnotherUser2: "",
+      firstUser: "",
+      secondUser: "",
     };
   },
   computed: {
+    conversations(){
+      return this.$store.getters.conversations;
+
+
+    },
+
     user() {
       return this.$store.getters.getUser;
     },
@@ -137,7 +141,9 @@ export default {
     hideMsg() {
       this.$store.commit("hideMsg", false);
     },
+    
     async sendMessage() {
+      if (this.messsage.trim()) {
       try {
         const messageData = {
           content: this.messsage,
@@ -148,26 +154,30 @@ export default {
             img: this.user.img,
             email: this.user.email,
           },
-          friendId: this.theAnotherUser || this.anotherFriendId,
+          friendId: this.firstUser || this.anotherFriendId,
           timeStamp: Date.now(),
         };
-        this.socket.emit("joinnotificationsRoom", this.$store.getters.getUser);
-        this.socket.emit("sendMessage", messageData);
+      
+        this.$soketio.emit("sendMessage", messageData);
         let pushMsgtoMineStore = {
           content: this.messsage,
           chatId: this.chatId,
           senderId: this.user._id,
-          senderImg: this.theAnotherUser2.img,
-          senderName: this.theAnotherUser2.name,
+          senderImg: this.secondUser.img,
+          senderName: this.secondUser.name,
           date: Date.now(),
         };
         this.$store.commit("pushNewMessage", pushMsgtoMineStore);
-        this.items.push(messageData);
+        this.$store.commit("addMsgToConversations", messageData);
         this.messsage = "";
         this.showLastMsg();
       } catch (error) {
         this.errors=error
       }
+      } else {
+        alert('you can not send empty message')
+      }
+
     },
   
     playSound(sound) {
@@ -181,11 +191,13 @@ export default {
       let sd = box.scrollHeight + 30;
       box.scrollTop = sd;
     },
+
   },
   watch: {
     chatIdfromanother() {
       Functions.getMessage(this.chatId).then((res) => {
-        this.items = res.data.chat;
+      this.$store.commit('setConversations',res.data.chat)
+
       });
     },
   },
@@ -196,56 +208,22 @@ export default {
     try {
       this.overlay = true;
       const res = await Functions.getMessage(this.chatId);
-      const addTOArr = Object.values(res.data.ChatDetails.users);
-      this.items = res.data.chat;
-      this.theAnotherUser = addTOArr.find((i) => {
+      const UsersIds = Object.values(res.data.ChatDetails.users);
+
+      this.$store.commit('setConversations',res.data.chat)
+
+      this.firstUser = UsersIds.find((i) => {
         return i !== this.user._id;
       });
 
-      this.theAnotherUser2 = this.users.find((i) => {
-        return i._id == this.theAnotherUser;
+      this.secondUser = this.users.find((i) => {
+        return i._id == this.firstUser;
       });
 
       this.overlay = false;
-     this.socket = this.$soketio;
-      this.socket.emit("JoinChat", this.chatId);
-      this.socket.on("newMessage", (data) => {
-        this.playSound(
-          "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-        );
-        let edittheMsg = {
-          chatId: data.chatId,
-          timeStamp: Date.now(),
-          sender: data.sender,
-          content: data.content,
-        };
-        let pushMsg = {
-          chatId: data.chatId,
-          content: data.content,
-          senderImg: data.sender.img,
-          senderName: data.sender.name,
-          senderId: data.sender._id,
-          date: Date.now(),
-        };
-        this.$store.commit("pushNewMessage", pushMsg);
-        this.items.push(edittheMsg);
-        this.showLastMsg();
-      });
-      this.socket.on("newMsgFromUrFriend", (data) => {
-        this.playSound(
-          "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-        );
-        let pushMsg = {
-          chatId: data.chatId,
-          content: data.content,
-          senderImg: data.sender.img,
-          senderName: data.sender.name,
-          senderId: data.sender._id,
-          date: Date.now(),
-        };
-        this.items.push(data);
-        this.$store.commit("pushNewMessage", pushMsg);
-      });
+      this.$soketio.emit("JoinChat", this.chatId);
+
+
     } catch (error) {
       this.errors = error;
       this.overlay = false;
@@ -254,13 +232,3 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.theFirstClass {
-  background: #e0e0e0;
-  color: black !important;
-}
-.theSecondClass {
-  background: #00bcd4;
-  color: white !important;
-}
-</style>

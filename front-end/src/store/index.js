@@ -7,6 +7,7 @@ import AuthanticationState from "./modules/AuthanticationState"
 import PostState from "./modules/PostState"
 import MassegeState from "./modules/MassegeState"
 import NotificationState from "./modules/NotificationState"
+import InitApp from "./modules/InitApp"
 Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
@@ -14,8 +15,6 @@ export default new Vuex.Store({
     searching: null,
     chatId: null,
     friendId: null,
-    appId:'192061e662432a3b',
-    apiKey:'a80f01769131283be6c1af603192d3c2202856cd'
   },
   // GETTERS TO SEND DATA ANOTHER PLACE
   getters: {
@@ -57,6 +56,7 @@ export default new Vuex.Store({
   },
   modules: {
     DrawerState,
+    InitApp,
     UserState,
     NotificationState,
     MassegeState,

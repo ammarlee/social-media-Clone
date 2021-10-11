@@ -3,23 +3,26 @@ var path = require("path");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const express = require("express");
+
+const cookieParser = require("cookie-parser");
 const session = require("express-session");
-const multer = require("multer");
 const hamlet = require("helmet");
 const hpp = require("hpp");
 const mongoSanitize = require("express-mongo-sanitize");
 const morgan = require("morgan");
 const xss = require("xss-clean");
+
 const AuthRoutes = require("./routes/auth");
 const UserRoutes = require("./routes/user");
 const PostRoutes = require("./routes/post");
 const AdminRoutes = require("./routes/admin");
 const HomeRoutes = require("./routes/home");
-var MongoDBStore = require("connect-mongodb-session")(session);
-const cookieParser = require("cookie-parser");
+
 const User = require("./models/user");
-const Message = require("./models/message");
-const livereload = require("connect-livereload");
+const {createNewMessage} =require('./controlles/message/message')
+const {getFriendsList} =require('./controlles/friends/friends')
+
+var MongoDBStore = require("connect-mongodb-session")(session);
 const MONGODB_URI =
   "mongodb+srv://ammarlee:tonightwewilldoit@cluster0.j47ye.mongodb.net/facebook";
 
@@ -50,7 +53,7 @@ app.use(hpp());
 app.use(
   cors({
     // origin: ["http://localhost:8080", "https://www.facebook.com"],
-     origin:'*',
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // enable set cookie
     exposedHeaders: ["set-cookie"],
@@ -113,77 +116,30 @@ app.use(PostRoutes);
 app.use(UserRoutes);
 app.use("/admin", AdminRoutes);
 app.use(HomeRoutes);
-//  test Two
-let getFriendsTwo = async (userId) => {
-  try {
-    const friends = await User.findOne({ _id: userId })
-      .populate({
-        path: "newFriendsTest",
-        populate: {
-          path: "friendId ",
-          select: "name img email",
-          model: "User",
-        },
-      })
-      .exec();
 
-    return friends.newFriendsTest;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
-let newMsg = async (data) => {
-  try {
-    const msg = await new Message({
-      chatId: data.chatId,
-      content: data.content,
-      sender: data.sender._id,
-      timeStamp,
-    });
-    let u = await User.findOne({ _id: data.friendId });
-    // save the
-    let f = u.messageNotifications.findIndex((i) => {
-      return i.chatId.toString() == data.chatId.toString();
-    });
-    let dd = {
-      chatId: data.chatId,
-      content: data.content,
-      senderImg: data.sender.img,
-      senderName: data.sender.name,
-      senderId: data.sender._id,
-      date: Date.now(),
-    };
-    if (f >= 0) {
-      u.messageNotifications[f] = dd;
-    } else {
-      u.messageNotifications.push(dd);
-    }
 
-    await msg.save();
-    await u.save();
-    return { msg, u };
-  } catch (error) {
-    console.log(error);
-  }
-};
+
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
     const server = app.listen(3000);
     const io = require("./socket").init(server);
     io.onlineUsersTwo = {};
+
     io.on("connection", (socket) => {
-      // first step [get user id and then add it to the room]
+
       console.log(`user connected :${socket.id}`);
       let date = Date.now();
+
+      // first step [get user id and then add it to the room]
       socket.on("joinnotificationsRoom", (data) => {
+        console.log(`joind notifiction room `);
         socket.join(data._id);
       });
       // second step
       socket.on("sendFriendRequest", (data) => {
-        console.log("sendFriendRequest >>>>>>>>>>>>>");
         const { msg, name, userId, friendId, img } = data;
-        io.to(data.friendId).emit("newRequest", {
+        io.to(friendId).emit("newRequest", {
           msg,
           name,
           userId,
@@ -196,10 +152,9 @@ mongoose
       // make comment
       socket.on("makeComment", (data) => {
         const { name, userId, friendId, img, postId } = data;
-        io.to(data.friendId).emit("newCommentNotification", {
+        io.to(friendId).emit("newCommentNotification", {
           action: "newCommentNotification",
           msg: " have comment on your post  ",
-          msg,
           name,
           userId,
           friendId,
@@ -210,14 +165,13 @@ mongoose
       });
       // add like
       socket.on("addLike", (data) => {
-        const { name, userId, friedId, img, postId } = data;
-
-        io.to(data.friendId).emit("newLikeNotification", {
+        const { name, userId, friendId, img, postId } = data;
+        io.to(friendId).emit("newLikeNotification", {
           action: "newLikeNotification",
           msg: " have like on your post  ",
           name,
           userId,
-          friedId,
+          friendId,
           img,
           postId,
           date,
@@ -226,14 +180,16 @@ mongoose
       // get friends online to chat with them
       socket.on("goOnlineTwo", (data) => {
         io.onlineUsersTwo[data._id] = true;
+
         //  second step is
-        getFriendsTwo(data._id).then((friends) => {
+        getFriendsList(data._id).then((friends) => {
           let onlineFriends = friends.filter(
             (friend) => io.onlineUsersTwo[friend.friendId._id]
-          );
+          ); 
           socket.emit("currentOnlineFriendsTwo", onlineFriends);
           io.sockets.emit("hello", data);
         });
+
         socket.on("disconnect", (data) => {
           io.onlineUsersTwo[data._id] = false;
           io.sockets.emit("broadcast", data._id);
@@ -244,11 +200,13 @@ mongoose
       socket.on("JoinChat", (data) => {
         socket.join(data);
       });
+
       socket.on("sendMessage", (data) => {
-        newMsg(data).then(() => {
+        createNewMessage(data).then(() => {
           io.to(data.friendId).emit("newMsgFromUrFriend", data);
         });
       });
+      
     });
   })
   .catch((err) => {

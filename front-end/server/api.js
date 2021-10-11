@@ -124,6 +124,10 @@ static redirect() {
     return axios().get(`comments`, data);
   }
 
+  static updateNotification(data){
+    return axios().post(`update-notification`,data)
+  }
+
   // USER ROUTERS
   //------------------------------------------------------------------------------
   static getYourProfile(data) {
@@ -150,22 +154,16 @@ static redirect() {
   static uploadCroppedImage({ userId, formData }) {
     return axios().put(`cropped-img/${userId}`, formData);
   }
-  static sendFriendRequest({ userId, friendId }) {
-    return axios().post(`add-friend-request/`, {
-      userId,
-      friendId,
-    });
+  static sendFriendRequest(data) {
+    return axios().post(`add-friend-request/`, data);
   }
   static deleteFriend({ userId, friendId }) {
     return axios().post(`delete-friend/${friendId}`, {
       userId,
     });
   }
-  static acceptNewFriend({ userId, friendId }) {
-    return axios().post(`accept-new-friend/`, {
-      userId,
-      friendId,
-    });
+  static acceptNewFriend(data) {
+    return axios().post(`accept-new-friend/`,data);
   }
   static msgFromOthers({ userId, otherId }) {
     return axios().post(`others-msg/`, {
@@ -180,15 +178,7 @@ static redirect() {
       friendId,
     });
   }
-  static friendRequestNotifications({ userId, friendId, name, img, msg }) {
-    return axios().post(`friends-request-notification/`, {
-      userId,
-      friendId,
-      name,
-      img,
-      msg,
-    });
-  }
+
 
   static pushToAllNotifications({
     userId,

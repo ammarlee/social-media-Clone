@@ -35,6 +35,7 @@
             <!-- contnent of all -->
 
             <app-content></app-content>
+
             <!-- right bar content -->
             <v-col cols="12" sm="3" class="d-none d-sm-block">
               <v-sheet rounded="lg" height="268">
@@ -50,7 +51,6 @@
             <app-chatting
               id="theChatBox"
               v-if="hideMsg "
-              :style="{  top: $screen.height -390  + 'px' }"
               :chatIdfromanother="getChatId"
             ></app-chatting>
           </v-row>
@@ -63,9 +63,11 @@
 import content from "./user/includesComponent/content";
 import onlineUsers from "./massage/onlineUsers";
 import chatting from "./massage/massageTest";
+// import socketMixins from '../plugins/Socket-Mixins';
 
 export default {
   name: "Home",
+    // mixins :[socketMixins],
   components: {
     "app-content": content,
     "app-onlineUsers": onlineUsers,
@@ -79,70 +81,10 @@ export default {
   },
 
   mounted() {
-    if (this.user) {
-      
-     
-      this.socket = this.$soketio;
-      // join the room
-      this.socket.emit("joinnotificationsRoom", this.$store.getters.getUser);
-
-      this.socket.on("newMsgFromUrFriend", (data) => {
-        this.playSound(
-          "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-        );
-        let pushMsg = {
-          chatId: data.chatId,
-          content: data.content,
-          senderImg: data.sender.img,
-          senderName: data.sender.name,
-          senderId: data.sender._id,
-          date: Date.now(),
-        };
-        this.$store.commit("pushNewMessage", pushMsg);
-      });
-      //  socket for likes
-      this.socket.on("newLikeNotification", (data) => {
-        if (this.user._id.toString() == data.userId.toString()) { return
-        } else {
-          this.addTheNotification(data);
-          this.playSound(
-            "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-          );
-        }
-      });
-      //   socket for new comments
-      this.socket.on("newCommentNotification", (data) => {
-        if (this.user._id.toString() == data.userId.toString()) { return; 
-          // console.log("the same user");
-        } else {
-          this.addTheNotification(data);
-          this.playSound(
-            "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-          );
-        }
-      });
-
-      // //  get notification for friends request
-      this.socket.on("newRequest", (data) => {
-        this.playSound(
-          "http://soundbible.com/mp3/Air Plane Ding-SoundBible.com-496729130.mp3"
-        );
-        const all = {
-          user: this.$store.getters.getUser._id,
-          action: data.action,
-          name: data.name,
-          userId: data.userId,
-          friendId: data.friendId,
-          img: data.img,
-          msg: data.msg,
-          date: data.date,
-        };
-this.addTheNotification({name:data.name,msg:data.msg,img:data.img});
-        this.$store.commit("friendRequestNotifications", all);
-      });
-    } else{
+    if (!this.user) {
       this.$router.push('/login')
-    }
+
+  }
   },
   computed: {
     user() {
@@ -198,8 +140,9 @@ this.addTheNotification({name:data.name,msg:data.msg,img:data.img});
 #theChatBox {
   position: fixed;
   left: 80px;
-  min-height: 220px;
+  min-height: 220px; 
   max-height: 221px;
+  top:25%;
   width: 320px;
 }
 </style>

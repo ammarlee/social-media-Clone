@@ -39,6 +39,8 @@ const routes = [
   //   name: "test",
   //   components: {
   //     default:()=>{ return import("../views/post/test.vue")},
+  //     header: header,
+  //     footer: footer,
   //   },
   // },
   {

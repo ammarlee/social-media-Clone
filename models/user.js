@@ -3,12 +3,12 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
   name: {
     type: String,
-    unique:true,
+    unique: true,
     required: true,
   },
   email: {
     type: String,
-    unique:true,
+    unique: true,
     required: true,
   },
   img: {
@@ -18,10 +18,11 @@ const userSchema = new Schema({
   },
   pics: {
     type: Array,
-  },  
+  },
   coverImg: {
     type: String,
-    default:'https://res.cloudinary.com/ammarleejot/image/upload/v1610559469/mevnstack/zxnem5w4ecxhq4jbqvl2.jpg'
+    default:
+      "https://res.cloudinary.com/ammarleejot/image/upload/v1610559469/mevnstack/zxnem5w4ecxhq4jbqvl2.jpg",
   },
   password: {
     type: String,
@@ -34,7 +35,7 @@ const userSchema = new Schema({
   resetToken: {
     type: String,
   },
-  userToken:{ type:String, default:''},
+  userToken: { type: String, default: "" },
   bio: {
     type: String,
   },
@@ -90,7 +91,7 @@ const userSchema = new Schema({
       ref: "User",
     },
   ],
-  friendsList:[
+  friendsList: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -102,41 +103,42 @@ const userSchema = new Schema({
       friendId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
       msg: { type: String },
-      action:String,
-      name:String,
-      img:String,
-      date:String,
+      action: String,
+      name: String,
+      img: String,
+      date: String,
+      seen: { type: Boolean, default: false },
     },
-    
   ],
-  messageNotifications:[
+  messageNotifications: [
     {
       senderId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       chatId: { type: mongoose.Schema.Types.ObjectId, ref: "Chat" },
       content: { type: String },
-      senderName:String,
-      senderImg:String,
-      date:String,
-
+      senderName: String,
+      senderImg: String,
+      date: String,
+      seen: { type: Boolean, default: false },
     },
   ],
-  friendsNotifications:  [
+  friendsNotifications: [
     {
-      
       friendId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       msg: { type: String },
-      name:String,
-      img:String,
-      date:String,
+      name: String,
+      img: String,
+      date: String,
+      seen: { type: Boolean, default: false },
     },
-    
   ],
-  savedPosts:[{
-    postId:{ type: mongoose.Schema.Types.ObjectId, ref: "Post" },
-    img:String,
-    description:String,
-    date:String,
-  }]
+  savedPosts: [
+    {
+      postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
+      img: String,
+      description: String,
+      date: String,
+    },
+  ],
 });
 
 module.exports = mongoose.model("User", userSchema);

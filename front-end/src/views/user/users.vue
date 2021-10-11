@@ -16,7 +16,7 @@
             <v-row  >
           <template v-for="(user) in users" style="cursor: pointer" >
             <v-col cols="12" sm="4" md="4" :key="user.name">
-            <v-list-item @click="navegatetoprofile(user._id)">
+            <v-list-item @click="vistiProfile(user._id)">
               <v-list-item-avatar>
                 <v-img :src="user.img"></v-img>
               </v-list-item-avatar>
@@ -44,7 +44,7 @@
                     v-else
                     :id="user._id"
                     small
-                    @click.stop="addFriend(user._id) "
+                    @click.stop="sendFriendRequest(user._id) "
                   >add</v-btn>
                 </v-list-item-action>
               </v-list-item-content>
@@ -67,62 +67,59 @@ import Functions from "../../../server/api";
 export default {
   data() {
     return {
-      socket: "",
-      users: "",
       user:'',
       act: "add",
+      users:null,
       isFriend: null,
       isInRequest: null,
     };
   },
   methods: {
     checkingUser(userId) {
-      let s = this.user.newFriendsTest.find((p) => {
+      let user = this.user.newFriendsTest.find((p) => {
         return p.friendId === userId;
       });
-      if (s) {
+      if (user) {
         return true;
       } else {
         return false;
       }
     },
     checkingfriendRequest(userId) {
-      let s = this.user.friendsRequests.find((p) => {
+      let user = this.user.friendsRequests.find((p) => {
         return p === userId;
       });
-      if (s) {
+      if (user) {
         return true;
       } else {
         return false;
       }
     },
-    navegatetoprofile(friendId) {
+    vistiProfile(friendId) {
       this.$router.push("/FriendProfile/" + friendId);
     },
 
-    async addFriend(friendId) {
-      const but = document.getElementById(friendId);
-      try {
+    async sendFriendRequest(friendId) {
 
-        await Functions.sendFriendRequest({
-          userId: this.$store.getters.getUser._id,
-          friendId: friendId,
-        });
-        but.classList.remove("success")
-        but.classList.add("yellow")
-        but.innerText = "pending"
-        but.disabled = 'disabled'
-        let u = this.currentUser;
-        const noti = {
-          userId: u._id,
-          name: u.name,
-          img: u.img,
+      let CurrentUser = this.currentUser;
+      const button = document.getElementById(friendId);
+          const requestInfo = {
+          userId: CurrentUser._id,
+          name: CurrentUser.name,
+          img: CurrentUser.img,
           friendId: friendId,
           action:"newNotification",
           msg:' have sent you friend request ',
         };
-        await Functions.friendRequestNotifications(noti)
-        this.socket.emit("sendFriendRequest", noti);
+      try {
+
+        await Functions.sendFriendRequest(requestInfo);
+        button.classList.remove("success")
+        button.classList.add("yellow")
+        button.innerText = "pending"
+        button.disabled = 'disabled'
+    
+        this.$soketio.emit("sendFriendRequest", requestInfo);
       
       } catch (error) {
         console.log(error);
@@ -134,18 +131,21 @@ export default {
     try {
       this.overlay = true
       let currentuser = this.$store.getters.getUser._id
-      this.socket = this.$soketio;
-      const res = await Functions.getusers();
-      const u = await Functions.getCurrentUser(currentuser)
-        this.overlay = false
-      this.user=u.data.user
-      this.users = res.data.users.filter(i=>{
+      const {data} = await Functions.getCurrentUser(currentuser)
+      this.overlay = false
+      this.user=data.user
+      this.users = this.allUsers.filter(i=>{
         return i._id !==currentuser
       });
     } catch (error) {
       this.overlay = false
       this.errors=error
    
+    }
+  },
+  computed: {
+    allUsers() {
+      return this.$store.getters.users 
     }
   },
 };

@@ -14,17 +14,20 @@ exports.profile = async (req, res, next) => {
   try {
     const user = await User.findOne({ _id: friendId }).lean();
     const user2 = await User.findOne({ _id: userId }).lean();
+
     // 1-check if the user is exist friends List or not 
     const isFriend = user.newFriendsTest.some((p) => {
       return p.friendId.toString() == userId.toString();
     });
+
     // 2-check if the user is exist friend requests or not 
     const isinRequests = user.friendsRequests.some((i) => {
-      return i.toString() == userId.toString();
+      return i.toString() === userId.toString();
     });
+
     // 3-check if the user is exist friend requests or not 
     const newFriendsRequests = user2.newFriendsRequests.some((i) => {
-      return i.toString() == friendId.toString();
+      return i.toString() === friendId.toString();
     });
 
     res
@@ -115,7 +118,9 @@ exports.uploadCroppedImage =async (req, res, next) => {
   const userId = req.params.userId;
   const mode = req.body.mode
   let user,msg
+
   const newImg =await ImageUploader.uploadImg(files,userId)
+
   if (mode=='prfile') {
      user = await User.findOneAndUpdate(
       { _id: userId },
@@ -179,8 +184,11 @@ exports.othersMsg=async(req,res,next)=>{
 
 }
 exports.acceptNewFriend = async (req, res, next) => {
+  const { userId, friendId, img, name,msg } = req.body;
+  const date = Date.now()
+  const requestData = { friendId:userId, img, name, date ,msg};
   try {
-    const { userId, friendId } = req.body;
+    
     const chat = new Chat({
       users: { userId, friendId },
     });
@@ -197,39 +205,31 @@ exports.acceptNewFriend = async (req, res, next) => {
    
     const user2 = await User.findByIdAndUpdate(
       { _id: userId },
-      { $pull: { friendsRequests: friendId ,newFriendsRequests:friendId} }
+      { $pull: { friendsRequests: friendId ,newFriendsRequests:friendId, } }
     );
+
 // the other user
     const friend3 = await User.findByIdAndUpdate(
       { _id: friendId },
-      { $pull: { friendsRequests: userId,newFriendsRequests:userId } ,},
+      { $pull: { friendsRequests: userId,newFriendsRequests:userId, } ,},
       { new: true }
     );
 
+
     const friend = await User.findByIdAndUpdate(
       { _id: friendId },
-      { $push: { newFriendsTest: { friendId: userId, chatId: newChat }, friendsList:userId} }
+      { $push: { newFriendsTest: { friendId: userId, chatId: newChat }, friendsList:userId,friendsNotifications:requestData} },
+
     );
-  
+    
+
    res.status(200).json({ msg: "you have added new friend", user, friend });
    
   } catch (error) {
     res.status(400).json({ error });
   }
 };
-exports.friendRequestnotifications = async (req, res, next) => {
-  const { userId, friendId, img, name,msg } = req.body;
-  try {
-    const user = await User.findOne({ _id: friendId });
-    const date = Date.now()
-    const h = { friendId:userId, img, name, date ,msg};
-    user.friendsNotifications.push(h);
-    await user.save();
-    res.status(200).json({ user });
-  } catch (error) {
-    res.status(400).json({ error });
-  }
-};
+
 exports.pushAllNotifications = async (req, res, next) => {
   const { userId, friendId, name, msg, img,action,postId } = req.body;
   if (userId ==friendId) {
@@ -260,12 +260,12 @@ exports.rejectNewFriend = async (req, res, next) => {
     const { userId, friendId } = req.body;
     const user2 = await User.findByIdAndUpdate(
       { _id: userId },
-      { $pull: { friendsRequests: friendId } }
+      { $pull: { friendsRequests: friendId,newFriendsRequests:friendId } }
     );
 
     const friend2 = await User.findByIdAndUpdate(
       { _id: friendId },
-      { $pull: { friendsRequests: userId } }
+      { $pull: { friendsRequests: userId ,newFriendsRequests:userId} }
     );
 
     res.status(200).json({ msg: "you have added new friend", user2, friend2 });
@@ -274,12 +274,16 @@ exports.rejectNewFriend = async (req, res, next) => {
   }
 };
 exports.addFriendRequest = async (req, res, next) => {
-  const { userId, friendId } = req.body;
+  const { userId, friendId, img, name,msg } = req.body;
+  const date = Date.now()
+  const requestData = { friendId:userId, img, name, date ,msg};
+
+  
   try {
     // 1-get the friend data with id and add id for the user to it 
     const friend = await User.findOneAndUpdate(
       { _id: friendId },
-      { $push: { friendsRequests: userId ,newFriendsRequests:userId} },
+      { $push: { friendsRequests: userId ,newFriendsRequests:userId,friendsNotifications:requestData} },
       { new: true }
     );
     // 1-get the another user data with id and add id for the friend to it 
@@ -355,17 +359,17 @@ exports.getMessage = async (req, res, next) => {
 exports.friendsRequests = async (req, res, next) => {
   const userId = req.params.userId;
   try {
-    const friends = await User.findOne({ _id: userId }).lean()
+    const user = await User.findOne({ _id: userId }).lean()
       .populate(  { path: 'newFriendsRequests', select: 'name _id img' } )
       .exec()
-    const filterFriends = friends.newFriendsRequests
+    const friendsRequests = user.newFriendsRequests
 
     res
       .status(200)
       .json({
         successful: true,
         msg: "you have friends",
-        friends: filterFriends,
+        friends: friendsRequests,
       });
   } catch (error) {
     res.status(400).json({ error, successful: false });
@@ -377,12 +381,12 @@ exports.deletFriend = async (req, res, next) => {
   try {
     const user1 = await  User.updateOne(
       { _id: userId },
-      { $pull: { 'newFriendsTest': { friendId: friendId }} } ,{
+      { $pull: { 'newFriendsTest': { friendId: friendId },'friendsList':friendId} } ,{
         multi: false
     })
     const user2 = await  User.updateOne(
       { _id: friendId },
-      { $pull: { 'newFriendsTest':{ friendId: userId }}  },{
+      { $pull: { 'newFriendsTest':{ friendId: userId },friendsList:userId}  },{
         multi: false
     })
     res

@@ -144,6 +144,29 @@ exports.editPost = async (req, res, next) => {
     res.status(400).json({ error, success: false });
   }
 };
+exports.updateNotification = async (req, res, next) => {
+  const {userId,notificationId} = req.body
+  console.log({userId,notificationId});
+  const user = await User.findOneAndUpdate(
+    {
+      _id: userId,
+      AllNotifications: {
+        $elemMatch: {
+          _id: notificationId,
+        },
+      },
+    },
+    {
+      $set: {
+        "AllNotifications.$.seen": true,
+      },
+    },
+    { new: true }
+  )
+    .catch((error) => {
+      return res.status(401).json(error);
+    });
+};
 exports.searchingInPosts = (req, res, next) => {
   index
     .search(req.body.name)
@@ -156,27 +179,25 @@ exports.searchingInPosts = (req, res, next) => {
     });
 };
 exports.createComment = async (req, res, next) => {
-  const user = req.body.user;
-  const postId = req.body.postId;
-  const description = req.body.comment;
+  const {user,postId,comment} = req.body;
   const date = Moment().format("MMMM Do YYYY, h:mm:ss a");
   try {
-    const comment = await Post.findOne({ _id: postId });
+    const post = await Post.findOne({ _id: postId });
 
-    comment.comments.push({
+    post.comments.push({
       userId: user._id,
       date,
       postId: postId,
-      description: description,
+      description: comment,
       name: user.name,
       img: user.img,
     });
-    await comment.save();
-    const s = comment.comments.length - 1;
+    await post.save();
+    const s = post.comments.length - 1;
 
     io.getIO().emit("post", {
       action: "comment",
-      comment: comment.comments[s],
+      comment: post.comments[s],
       msg: "new post has been added ",
     });
 
@@ -194,19 +215,23 @@ exports.addLike = async (req, res, next) => {
   const date = Moment().format("MMMM Do YYYY, h:mm:ss a");
   try {
     const post = await Post.findOne({ _id: postId });
+
     let getIndex = post.reacts.findIndex((i) => {
       return i.userId.toString() == userId.toString();
     });
+
     if (getIndex >= 0) {
       return;
     } else {
       post.reacts.push({ userId: userId, date });
+
       await post.save();
-      const s = post.reacts.length - 1;
+
+      const lastReactIndex = post.reacts.length - 1;
 
       io.getIO().emit("post", {
         action: "like",
-        like: post.reacts[s],
+        like: post.reacts[lastReactIndex],
         msg: "new like to the post ",
       });
     }
@@ -231,10 +256,10 @@ exports.removeLike = async (req, res, next) => {
   const postId = req.body.postId;
   try {
     const post = await Post.findOne({ _id: postId });
-    let s = post.reacts.filter((p) => {
-      return p.userId.toString() !== userId;
+    let listAfterRemoveLike = post.reacts.filter((post) => {
+      return post.userId.toString() !== userId;
     });
-    post.reacts = s;
+    post.reacts = listAfterRemoveLike;
     await post.save();
     const p = await Post.findOne({ _id: postId })
       .lean()
@@ -273,7 +298,7 @@ exports.deleteComment = async (req, res, next) => {
   const postId = req.body.postId;
   const commentId = req.params.commentId;
   try {
-    const comment = await Post.findByIdAndUpdate(
+    const post = await Post.findByIdAndUpdate(
       { _id: postId },
       { $pull: { comments: { _id: commentId } } }
     );
@@ -302,8 +327,7 @@ exports.deleteComment = async (req, res, next) => {
 };
 exports.editComment = async (req, res, next) => {
   const commentId = req.params.commentId;
-  const newComment = req.body.newComment;
-  const postId = req.body.postId;
+  const {newComment,postId} = req.body
   try {
     const comment = await Post.findOneAndUpdate(
       {
@@ -337,14 +361,11 @@ exports.editComment = async (req, res, next) => {
   }
 };
 exports.savePost = async (req, res, next) => {
-  const postId = req.body.postId;
-  const userId = req.body.userId;
-  const img = req.body.img[0];
-  const description = req.body.description;
+  const {postId,userId,description,img} = req.body;
   try {
     const user = await User.findByIdAndUpdate(
       { _id: userId },
-      { $push: { savedPosts: { postId, img, description, date: Date.now() } } },
+      { $push: { savedPosts: { postId, img:img[0], description, date: Date.now() } } },
       { new: true }
     );
 
@@ -356,8 +377,7 @@ exports.savePost = async (req, res, next) => {
   }
 };
 exports.removePostFromFavourite = async (req, res, next) => {
-  const postId = req.body.postId;
-  const userId = req.body.userId;
+  const {postId,userId} = req.body;
   try {
     const user = await User.findByIdAndUpdate(
       { _id: userId },

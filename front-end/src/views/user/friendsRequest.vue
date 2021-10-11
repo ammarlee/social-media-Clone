@@ -42,7 +42,7 @@
           </v-row>
         </v-list>
       </v-card>
-       <app-Alert color="red" msg="you have not any new friends requests"></app-Alert>
+       <app-Alert v-else color="red" msg="you have not any new friends requests"></app-Alert>
   
     </v-container>
   </v-app>
@@ -81,26 +81,22 @@ export default {
     },
     async acceptFriend(friendId) {
       try {
-        let u = this.$store.getters.getUser;
-        let data = {
-          userId: u._id,
-          friendId: friendId,
-        };
-        this.overlay = true;
-        let res =await Functions.acceptNewFriend(data);
-        console.log(res.status);
-        this.removeFriendFromList(friendId);
-        if (res.status ==200) {
-          const noti = {
-            userId: u._id,
-            name: u.name,
-            img: u.img,
+        let currentUser = this.currentUser
+        const requestInfo = {
+            userId: currentUser._id,
+            name: currentUser.name,
+            img: currentUser.img,
             friendId: friendId,
             action:"newNotification",
             msg:' have acccepted  your friend request ',
           };
-          await Functions.friendRequestNotifications(noti)
-          this.socket.emit("sendFriendRequest", noti);
+        this.overlay = true;
+        let res =await Functions.acceptNewFriend(requestInfo);
+        console.log(res.status);
+        this.removeFriendFromList(friendId);
+        if (res.status ==200) {
+          
+          this.socket.emit("sendFriendRequest", requestInfo);
         }
         
         this.overlay = false;
@@ -126,7 +122,6 @@ export default {
       }
     },
     removeFriendFromList(id) {
-      console.log(id);
       this.users = this.users.filter((p) => {
         return p._id !== id;
       });

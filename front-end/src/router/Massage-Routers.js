@@ -20,7 +20,6 @@ export default [
         components: {
           default:()=>{ return import("../views/massage/massageTest.vue")},
           header: header,
-          footer: footer,
         },
       },
 ]

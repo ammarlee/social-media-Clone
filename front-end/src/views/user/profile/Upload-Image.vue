@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import ImageCropper from "./Image-Cropper";
+import ImageCropper from "./image-cropper";
 import Functions from "../../../../server/api"
 export default {
   components: {

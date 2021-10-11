@@ -8,11 +8,12 @@
       
        <v-spacer></v-spacer>
       <v-toolbar-items class="d-none d-md-inline">
+        
         <v-btn text v-for="(item,i) in navbarLinks" :key="i" :to="item.link" :title="item.title" class="questrial text-none font-weight-bold">
           <v-icon x-large>{{item.icon}}</v-icon>
           </v-btn>
           
-         <v-btn text :to="'/profile/'+getUser._id +'/profileFriends'" title="Friends" class="questrial text-none font-weight-bold">
+         <v-btn text v-if="getUser" :to="'/profile/'+getUser._id +'/profileFriends'" title="Friends" class="questrial text-none font-weight-bold">
           <v-icon x-large>mdi-account-group-outline</v-icon>
           </v-btn>
       </v-toolbar-items>
@@ -28,12 +29,13 @@
         <v-icon class="white--text">mdi-facebook-messenger</v-icon>
       </v-app-bar-nav-icon>
       <v-toolbar-items  class="d-none d-sm-block">
+
         <div  class="pt-3" v-if="getUser">
-         <v-badge color="green" class="mr-3"  overlap bordered :content="allNotifications.length">
+
+         <v-badge color="green" class="mr-3"  overlap bordered :content="allNotificationsNotSeen">
             <v-menu
             transition="slide-y-transition"
               v-if="getUser"
-              class="allTHeOne"
               style="overflow: scroll !important; max-height: 500px !important;"
               bottom
               min-width="200px"
@@ -45,6 +47,7 @@
                   <v-icon class="white--text">mdi-bell-ring</v-icon>
                 </v-btn>
               </template>
+
               <!-- menu for notifications -->
               <v-card max-height="500" style="overflow-y: scroll">
                 <v-list-item-content class="justify-center">
@@ -52,12 +55,14 @@
                     <v-btn depressed rounded text>notification {{allNotifications.length}}</v-btn>
                     <v-divider class="my-3"></v-divider>
 
-                    <div v-for="(item, index) in allNotifications" :key="index">
-                      <v-list three-line class="theListDiv pt-0 pb-0">
+                    <div v-for="(item, index) in allNotifications" class=" mb-1" :key="index">
+                      <v-list three-line 
+                      :class="[item.seen ? '' : 'pink']"
+                      class="theListDiv pt-0 pb-0">
                         <v-list-item
                           class="text-left text-capitalize"
                           :key="item.senderName"
-                          @click="navegateToPost(item.postId)"
+                          @click="navegateToPost(item)"
                         >
                           <v-list-item-avatar>
                             <v-img :src="item.img"></v-img>
@@ -82,6 +87,7 @@
             </v-menu>
           </v-badge>
           <!-- menu for messg -->
+
           <v-badge color="pink" overlap class="mr-3" bordered :content="allMsgs.length">
             <v-menu
             transition="slide-y-transition"
@@ -101,6 +107,7 @@
                 <v-list-item-content class="justify-center">
                   <div class="mx-auto mb-0 text-center">
                     <v-btn to="/massage" text block class="text-capitalize">messages</v-btn>
+                   
                     <v-divider class="mb-3"></v-divider>
 
                     <div v-for="(item,i) in allMsgs " :key="i">
@@ -130,6 +137,7 @@
                     <v-divider class="my-3"></v-divider>
                     <router-link to="/massage" tag="div">
                       <v-btn depressed rounded text to="/massage">message</v-btn>
+                       <!-- <v-btn to="/test" text block class="text-capitalize">new messages</v-btn> -->
                     </router-link>
                   </div>
                 </v-list-item-content>
@@ -137,6 +145,7 @@
             </v-menu>
           </v-badge>
           <!--  end messge -->
+
           <!-- friend Requests -->
           <v-badge color="green" class="mr-3" overlap bordered :content="notifications.length">
             <v-menu
@@ -189,6 +198,7 @@
               </v-card>
             </v-menu>
           </v-badge>
+
          <!-- user options  -->
           <v-menu  transition="slide-y-transition" v-if="getUser" bottom min-width="200px" rounded offset-y>
             <template v-slot:activator="{ on }">
@@ -261,7 +271,9 @@ export default {
        
     };
   },
- 
+  beforeRouteUpdate(_to, _from, next) {
+    next();
+  },
   mounted() {
     this.test = this.$store.getters.notifications;
     this.socket = this.$soketio;
@@ -281,25 +293,24 @@ export default {
       this.$router.push(`/saved-posts/${this.getUser._id}`);
     },
 
-    navegateToPost(id) {
-      if (this.$route.name === "singlePost") {
-        this.$router.push("/").then(() => {
-          this.$router.push("/singlePost/" + id);
-        });
-      } else {
-        this.$router.push("/singlePost/" + id);
-      }
+   async navegateToPost(item) {
+    //  item.seen = true
+    console.log(this.$route.params.id);
+    if (this.$route.params.id ===item.postId) {
+      return
+    }else{
+
+      this.$router.replace({ path: `/singlePost/${item.postId}`,});
+    }
+    if (item.seen ==false) {
+      this.$store.commit('updateNotification',item);
+      await Functions.updateNotification({notificationId:item._id,userId:this.getUser._id})
+      
+    }
+    
     },
     navegateToFriendsRequest() {
-      // if (this.$route.name === "Home") {
-      //   this.$router.push("/FriendProfile/" + id);
-      // } else {
-      //   this.$router.push("/").then(() => {
-      //     this.$router.push("/FriendProfile/" + id);
-      //   });
-      // }
         this.$router.push("/friends-request/");
-
     },
 
     async logout() {
@@ -310,6 +321,8 @@ export default {
         localStorage.removeItem("userToken");
         this.$store.dispatch("setUser", null);
         this.$store.dispatch("setAuth", false);
+        this.$store.dispatch("logOutCometChat", false);
+
         this.$store.commit("setNotifications", null);
         this.$store.commit("setAllNotificationsAfterLogin", null);
         this.$store.commit("setUserMessages", null);
@@ -341,6 +354,14 @@ export default {
     ]),
     allMsgs() {
       return this.$store.getters.messages ||[];
+    },
+    allNotificationsNotSeen(){
+      let len =this.allNotifications.filter(item=>{
+        return item.seen ==false
+      }).length
+      return len
+
+   
     },
 
     rightDrawer: {
